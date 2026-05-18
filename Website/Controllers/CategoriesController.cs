@@ -1,0 +1,67 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Website.Dtos;
+using Website.Services;
+using static Website.Dtos.DTOs;
+
+namespace Website.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    public class CategoriesController : ControllerBase
+    {
+        private readonly ICategoryService _categoryService;
+        public CategoriesController(ICategoryService categoryService) => _categoryService = categoryService;
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 1 || pageSize > 100) pageSize = 10;
+            var result = await _categoryService.GetAllAsync(page, pageSize, search);
+            return Ok(ApiResponse<PagedResult<CategoryResponseDto>>.Ok(result));
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var category = await _categoryService.GetByIdAsync(id);
+            if (category == null)
+            {
+                return NotFound(ApiResponse<CategoryResponseDto>.Fail("Category not found"));
+            }
+            return Ok(ApiResponse<CategoryResponseDto>.Ok(category));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CategoryCreateDto dto)
+        {
+            var createdCategory = await _categoryService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = createdCategory.Id }, ApiResponse<CategoryResponseDto>.Ok(createdCategory));
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] CategoryUpdateDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                return BadRequest(ApiResponse<object>.Fail("Category name is required"));
+            }
+            var updatedCategory = await _categoryService.UpdateAsync(id, dto);
+            if (updatedCategory == null)
+            {
+                return NotFound(ApiResponse<CategoryResponseDto>.Fail("Category not found"));
+            }
+            return Ok(ApiResponse<CategoryResponseDto>.Ok(updatedCategory));
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _categoryService.DeleteAsync(id);
+            if (!success) return NotFound(ApiResponse<CategoryResponseDto>.Fail("Category not found"));
+            return NoContent();
+        }
+    }
+}
