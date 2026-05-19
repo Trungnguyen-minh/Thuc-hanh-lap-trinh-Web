@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Sản phẩm";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold">Tất cả sản phẩm</h1>
+        <input type="text" id="search" 
+               class="border border-gray-300 rounded-xl px-5 py-3 w-80 focus:outline-none focus:border-indigo-500"
+               placeholder="Tìm kiếm sản phẩm...">
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="product-list">
+    </div>
+</div>
+
+<script>
+    // Giả sử bạn truyền Model List<Product> hoặc fetch API
+    async function loadProducts() {
+        // Thay bằng fetch('/api/products') sau
+        // Hiện tại dùng dữ liệu mẫu
+    }
+</script>

@@ -22,9 +22,4 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="View\Product\" />
-	  <Folder Include="View\Web\" />
-	</ItemGroup>
 </Project>
