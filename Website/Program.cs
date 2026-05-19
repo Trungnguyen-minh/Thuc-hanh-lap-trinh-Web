@@ -79,8 +79,50 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
+
+    try
+    {
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+        // 1. Tạo các Role nếu chưa tồn tại
+        if (!await roleManager.RoleExistsAsync("Admin"))
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+        if (!await roleManager.RoleExistsAsync("User"))
+            await roleManager.CreateAsync(new IdentityRole("User"));
+
+        // 2. Cập nhật quyền cho các tài khoản hiện có
+        var users = await userManager.Users.ToListAsync();
+        if (users.Any())
+        {
+            var admins = await userManager.GetUsersInRoleAsync("Admin");
+            if (!admins.Any())
+            {
+                // Nếu chưa có ai là Admin, gán quyền Admin cho tài khoản đầu tiên
+                var firstUser = users.First();
+                await userManager.AddToRoleAsync(firstUser, "Admin");
+                Console.WriteLine($"[Seeder] Assigned 'Admin' role to the first user: {firstUser.Email}");
+            }
+
+            // Gán quyền 'User' cho tất cả tài khoản còn lại nếu họ chưa có quyền gì
+            foreach (var u in users)
+            {
+                var roles = await userManager.GetRolesAsync(u);
+                if (!roles.Any())
+                {
+                    await userManager.AddToRoleAsync(u, "User");
+                    Console.WriteLine($"[Seeder] Assigned 'User' role to user: {u.Email}");
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Seeding Error] {ex.Message}");
+    }
 }
 
 if (app.Environment.IsDevelopment())

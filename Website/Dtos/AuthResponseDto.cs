@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Website.Dtos
 {
@@ -45,5 +45,16 @@ namespace Website.Dtos
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public DateTime Expiry { get; set; }
+    }
+
+    public class AssignRoleDto
+    {
+        [Required(ErrorMessage = "Email không được để trống")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Quyền không được để trống")]
+        [RegularExpression("^(Admin|User)$", ErrorMessage = "Quyền chỉ có thể là Admin hoặc User")]
+        public string Role { get; set; } = string.Empty;
     }
 }
