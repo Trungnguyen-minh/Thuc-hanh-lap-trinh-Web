@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Khám phá tất cả sản phẩm tại ShopVN">
+    <title>Sản phẩm - ShopVN</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container" data-active="products"></div>
+
+    <section class="section-sm container">
+        <div class="breadcrumb" style="margin-bottom:24px">
+            <a href="/">Trang chủ</a><span class="breadcrumb-sep">/</span><span>Sản phẩm</span>
+        </div>
+
+        <h1 style="font-size:2rem;font-weight:800;margin-bottom:24px">Tất cả sản phẩm</h1>
+
+        <!-- FILTERS -->
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;align-items:stretch">
+            <div class="search-bar" style="flex:1;min-width:260px">
+                <input type="text" id="search-input" placeholder="Tìm kiếm sản phẩm..."
+                    onkeydown="if(event.key==='Enter')searchProducts()">
+                <button class="search-btn" onclick="searchProducts()">🔍</button>
+            </div>
+            <select id="category-filter" class="form-input" style="min-width:180px;cursor:pointer"
+                onchange="filterByCategory()">
+                <option value="">Tất cả danh mục</option>
+            </select>
+        </div>
+
+        <!-- PRODUCT GRID -->
+        <div class="product-grid" id="products-grid">
+            <div class="loading-state" style="grid-column:1/-1">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <!-- PAGINATION -->
+        <div style="margin-top:40px" id="pagination-container"></div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script>
+        let currentPage = 1;
+        const pageSize = 12;
+
+        function getParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                search: params.get('search') || '',
+                categoryId: params.get('categoryId') || ''
+            };
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await CategoriesAPI.getAll(1, 100);
+                const cats = res.data?.items || [];
+                const select = document.getElementById('category-filter');
+                cats.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `${c.name} (${c.productCount})`;
+                    select.appendChild(opt);
+                });
+                const { categoryId } = getParams();
+                if (categoryId) select.value = categoryId;
+            } catch { }
+        }
+
+        async function loadProducts(page = 1) {
+            currentPage = page;
+            const grid = document.getElementById('products-grid');
+            const pagEl = document.getElementById('pagination-container');
+            grid.innerHTML = '<div class="loading-state" style="grid-column:1/-1"><div class="spinner"></div></div>';
+
+            const search = document.getElementById('search-input').value.trim();
+            const categoryId = document.getElementById('category-filter').value;
+
+            try {
+                const res = await ProductsAPI.getAll(page, pageSize, search || null, categoryId || null);
+                const data = res.data;
+                const items = data?.items || [];
+                if (items.length === 0) {
+                    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div class="empty-title">Không tìm thấy sản phẩm</div><div class="empty-sub">Thử từ khóa khác hoặc xóa bộ lọc</div></div>';
+                    pagEl.innerHTML = '';
+                } else {
+                    grid.innerHTML = items.map(p => renderProductCard(p)).join('');
+                    pagEl.innerHTML = renderPagination(data.page, data.totalPages, 'loadProducts');
+                }
+            } catch {
+                grid.innerHTML = '<div class="alert alert-error" style="grid-column:1/-1">Không thể tải sản phẩm. Vui lòng thử lại.</div>';
+                pagEl.innerHTML = '';
+            }
+        }
+
+        function searchProducts() { loadProducts(1); }
+        function filterByCategory() { loadProducts(1); }
+
+        // Init
+        (async () => {
+            const { search, categoryId } = getParams();
+            if (search) document.getElementById('search-input').value = search;
+            await loadCategories();
+            loadProducts(1);
+        })();
+    </script>
+</body>
+
+</html>

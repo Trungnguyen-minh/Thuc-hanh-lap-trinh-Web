@@ -2,6 +2,7 @@
 using Website.Data;
 using Website.Dtos;
 using Website.Models;
+using static Website.Dtos.DTOs;
 
 namespace Website.Services
 {
@@ -16,6 +17,33 @@ namespace Website.Services
             _db = db;
             _cartService = cartService;
             _vnpay = vnpay;
+        }
+
+        public async Task<PagedResult<OrderSummaryDto>> GetAllAsync(string userId, int page, int pageSize)
+        {
+            var query = _db.Orders.Where(o => o.UserId == userId);
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new OrderSummaryDto
+                {
+                    OrderId = o.Id,
+                    Status = o.Status.ToString(),
+                    TotalAmount = o.TotalAmount,
+                    CreatedAt = o.CreatedAt
+                })
+                .ToListAsync();
+
+            return new PagedResult<OrderSummaryDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         // ─── BƯỚC 2: RESERVATION ─────────────────────────────
@@ -161,10 +189,11 @@ namespace Website.Services
         {
             OrderId = o.Id,
             Status = o.Status.ToString(),
-            ShippingAddress = o.Address,
-            PhoneNumber = o.Phone,
+            ShippingAddress = o.Address ?? string.Empty,
+            PhoneNumber = o.Phone ?? string.Empty,
+            Note = null,
             TotalAmount = o.TotalAmount,
-            VnpayTransactionId = o.VnpayTransactionId,
+            VnpayTransactionId = o.VnpayTransactionId ?? string.Empty,
             CreatedAt = o.CreatedAt,
             Items = o.Items.Select(i => new OrderItemDto
             {

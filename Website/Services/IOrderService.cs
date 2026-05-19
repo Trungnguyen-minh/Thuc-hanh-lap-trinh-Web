@@ -1,9 +1,13 @@
 ﻿using Website.Dtos;
+using static Website.Dtos.DTOs;
 
 namespace Website.Services
 {
     public interface IOrderService
     {
+        // Get all orders for user
+        Task<PagedResult<OrderSummaryDto>> GetAllAsync(string userId, int page, int pageSize);
+
         // Bước 2: Tạo reservation từ cart
         Task<OrderConfirmationDto> CreateReservationAsync(string userId, ReservationDto dto);
 

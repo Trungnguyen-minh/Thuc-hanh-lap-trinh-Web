@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="ShopVN - Nền tảng mua sắm trực tuyến hàng đầu Việt Nam. Sản phẩm chất lượng, giá tốt nhất.">
+  <title>ShopVN - Mua sắm trực tuyến</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="navbar-container" data-active="home"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">🔥 Khuyến mãi lớn mùa hè 2026</div>
+      <h1>Mua sắm thông minh<br>với <span class="text-gradient">ShopVN</span></h1>
+      <p>Khám phá hàng nghìn sản phẩm chất lượng với giá tốt nhất. Giao hàng nhanh chóng, đổi trả dễ dàng.</p>
+      <div class="hero-actions">
+        <a href="/products.html" class="btn btn-primary btn-lg">Khám phá ngay →</a>
+        <a href="/register.html" class="btn btn-outline btn-lg">Tạo tài khoản</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num text-gradient" id="stat-products">--</div>
+          <div class="hero-stat-label">Sản phẩm</div>
+        </div>
+        <div>
+          <div class="hero-stat-num text-gradient" id="stat-categories">--</div>
+          <div class="hero-stat-label">Danh mục</div>
+        </div>
+        <div>
+          <div class="hero-stat-num text-gradient">24/7</div>
+          <div class="hero-stat-label">Hỗ trợ</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="section container">
+    <div class="section-header">
+      <h2 class="section-title">🏷️ Danh mục sản phẩm</h2>
+      <a href="/products.html" class="section-link">Xem tất cả →</a>
+    </div>
+    <div class="cat-grid" id="categories-grid">
+      <div class="loading-state">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED PRODUCTS -->
+  <section class="section container">
+    <div class="section-header">
+      <h2 class="section-title">⭐ Sản phẩm nổi bật</h2>
+      <a href="/products.html" class="section-link">Xem tất cả →</a>
+    </div>
+    <div class="product-grid" id="featured-grid">
+      <div class="loading-state" style="grid-column:1/-1">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    const catIcons = ['📱', '💻', '🎧', '👕', '📷', '🎮', '🏠', '🎒', '⌚', '🖥️', '📚', '🍜'];
+
+    async function loadHome() {
+      // Load categories
+      try {
+        const catRes = await CategoriesAPI.getAll(1, 12);
+        const cats = catRes.data?.items || [];
+        const grid = document.getElementById('categories-grid');
+        if (cats.length === 0) {
+          grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;grid-column:1/-1">Chưa có danh mục nào.</p>';
+        } else {
+          grid.innerHTML = cats.map((c, i) => `
+            <a href="/products.html?categoryId=${c.id}" class="cat-card">
+              <div class="cat-icon">${catIcons[i % catIcons.length]}</div>
+              <div class="cat-name">${c.name}</div>
+              <div class="cat-count">${c.productCount} sản phẩm</div>
+            </a>
+          `).join('');
+        }
+        document.getElementById('stat-categories').textContent = cats.length;
+      } catch {
+        document.getElementById('categories-grid').innerHTML = '<p style="color:var(--text-muted);text-align:center;grid-column:1/-1">Không thể tải danh mục.</p>';
+      }
+
+      // Load featured products
+      try {
+        const prodRes = await ProductsAPI.getAll(1, 8);
+        const items = prodRes.data?.items || [];
+        const grid = document.getElementById('featured-grid');
+        if (items.length === 0) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><div class="empty-title">Chưa có sản phẩm nào</div></div>';
+        } else {
+          grid.innerHTML = items.map(p => renderProductCard(p)).join('');
+        }
+        document.getElementById('stat-products').textContent = prodRes.data?.totalCount || items.length;
+      } catch {
+        document.getElementById('featured-grid').innerHTML = '<p style="color:var(--text-muted);text-align:center;grid-column:1/-1">Không thể tải sản phẩm.</p>';
+      }
+    }
+    loadHome();
+  </script>
+</body>
+
+</html>

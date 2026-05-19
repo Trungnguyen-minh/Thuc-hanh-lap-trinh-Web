@@ -20,10 +20,10 @@
     public class ProductService : IProductService
     {
         private readonly IProductRepository _repo;
-        private readonly ImageService _imageService;
+        private readonly IImageService _imageService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProductService(IProductRepository repo, ImageService imageService, IHttpContextAccessor httpContextAccessor)
+        public ProductService(IProductRepository repo, IImageService imageService, IHttpContextAccessor httpContextAccessor)
         {
             _repo = repo;
             _imageService = imageService;
@@ -60,6 +60,7 @@
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim(),
                 Price = dto.Price,
+                Stock = dto.Stock,
                 ImageUrl = imagePath,
                 CategoryId = dto.CategoryId
             };
@@ -83,6 +84,7 @@
             product.Name = dto.Name.Trim();
             product.Description = dto.Description?.Trim();
             product.Price = dto.Price;
+            product.Stock = dto.Stock;
             product.CategoryId = dto.CategoryId;
 
             await _repo.UpdateAsync(product);
@@ -115,6 +117,7 @@
                 Name = p.Name,
                 Description = p.Description,
                 Price = p.Price,
+                Stock = p.Stock,
                 ImagePath = p.ImageUrl,
                 ImageUrl = fullImageUrl,
                 CategoryId = p.CategoryId,

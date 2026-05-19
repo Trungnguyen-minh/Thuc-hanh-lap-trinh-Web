@@ -1,10 +1,10 @@
-﻿using Website.Dtos;
-using Website.Models;
-using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Website.Dtos;
+using Website.Models;
 
 namespace Website.Services
 {
@@ -67,7 +67,7 @@ namespace Website.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim("fullName", user.FullName),
+                new Claim("fullName", user.FullName ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -87,7 +87,7 @@ namespace Website.Services
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Email = user.Email!,
-                FullName = user.FullName,
+                FullName = user.FullName ?? string.Empty,
                 Expiry = expiry
             };
         }

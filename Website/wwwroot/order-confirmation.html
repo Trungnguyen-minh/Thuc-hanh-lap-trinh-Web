@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận đơn hàng - ShopVN</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container" data-active=""></div>
+
+    <section class="section container">
+        <div id="confirmation-content">
+            <div class="loading-state">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script>
+        const orderId = new URLSearchParams(window.location.search).get('orderId');
+
+        async function loadConfirmation() {
+            if (!Auth.isLoggedIn()) { window.location.href = '/login.html'; return; }
+            const container = document.getElementById('confirmation-content');
+            if (!orderId) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">❓</div><div class="empty-title">Không tìm thấy đơn hàng</div><a href="/" class="btn btn-primary" style="margin-top:16px">Về trang chủ</a></div>';
+                return;
+            }
+            try {
+                const res = await OrderAPI.getConfirmation(orderId);
+                const o = res.data;
+                const statusMap = {
+                    'Pending': ['⏳', 'Chờ xử lý', 'status-pending'],
+                    'Reserved': ['📦', 'Đã giữ hàng', 'status-reserved'],
+                    'Paid': ['💳', 'Đã thanh toán', 'status-paid'],
+                    'Confirmed': ['✅', 'Hoàn tất', 'status-confirmed']
+                };
+                const [icon, label, cls] = statusMap[o.status] || ['📋', o.status, 'status-pending'];
+
+                container.innerHTML = `
+        <div style="max-width:680px;margin:0 auto" class="animate-fade">
+          <div style="text-align:center;margin-bottom:40px">
+            <div style="font-size:4rem;margin-bottom:16px">🎉</div>
+            <h1 style="font-size:2rem;font-weight:800;margin-bottom:8px">Đặt hàng thành công!</h1>
+            <p style="color:var(--text-muted)">Cảm ơn bạn đã mua hàng tại ShopVN</p>
+          </div>
+
+          <div class="card" style="padding:28px;margin-bottom:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+              <h3 style="font-weight:700">Đơn hàng #${o.orderId}</h3>
+              <span class="status-badge ${cls}">${icon} ${label}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:.9rem">
+              <div>
+                <div style="color:var(--text-muted);margin-bottom:4px">📍 Địa chỉ</div>
+                <div style="font-weight:500">${o.shippingAddress}</div>
+              </div>
+              <div>
+                <div style="color:var(--text-muted);margin-bottom:4px">📞 Điện thoại</div>
+                <div style="font-weight:500">${o.phoneNumber}</div>
+              </div>
+              <div>
+                <div style="color:var(--text-muted);margin-bottom:4px">📅 Ngày đặt</div>
+                <div style="font-weight:500">${new Date(o.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+              </div>
+              ${o.vnpayTransactionId ? `
+              <div>
+                <div style="color:var(--text-muted);margin-bottom:4px">💳 Mã giao dịch VNPay</div>
+                <div style="font-weight:500">${o.vnpayTransactionId}</div>
+              </div>` : ''}
+            </div>
+            ${o.note ? `<div style="margin-top:16px;padding:12px;background:var(--bg-glass);border-radius:var(--radius-sm);font-size:.875rem"><strong>Ghi chú:</strong> ${o.note}</div>` : ''}
+          </div>
+
+          <div class="card" style="padding:28px;margin-bottom:20px">
+            <h3 style="font-weight:700;margin-bottom:16px">📦 Chi tiết sản phẩm</h3>
+            ${o.items.map(item => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+                <div>
+                  <div style="font-weight:600">${item.productName}</div>
+                  <div style="font-size:.8rem;color:var(--text-muted)">${formatPrice(item.unitPrice)} × ${item.quantity}</div>
+                </div>
+                <div style="font-weight:700;color:var(--accent)">${formatPrice(item.subTotal)}</div>
+              </div>
+            `).join('')}
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;margin-top:8px">
+              <span style="font-size:1.1rem;font-weight:800">Tổng cộng</span>
+              <span style="font-size:1.25rem;font-weight:900;color:var(--accent)">${formatPrice(o.totalAmount)}</span>
+            </div>
+          </div>
+
+          <div style="text-align:center;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+            <a href="/" class="btn btn-outline">← Về trang chủ</a>
+            <a href="/products.html" class="btn btn-primary">Tiếp tục mua sắm →</a>
+          </div>
+        </div>`;
+
+                // Clear cart count after successful order
+                setCartCount(0);
+            } catch (e) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-icon">😕</div><div class="empty-title">Không thể tải thông tin đơn hàng</div><div class="empty-sub">${e.message}</div><a href="/" class="btn btn-outline" style="margin-top:16px">Về trang chủ</a></div>`;
+            }
+        }
+
+        loadConfirmation();
+    </script>
+</body>
+
+</html>

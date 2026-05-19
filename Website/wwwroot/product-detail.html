@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chi tiết sản phẩm - ShopVN">
+    <title>Chi tiết sản phẩm - ShopVN</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container" data-active="products"></div>
+
+    <section class="section-sm container">
+        <div class="breadcrumb" style="margin-bottom:32px">
+            <a href="/">Trang chủ</a><span class="breadcrumb-sep">/</span>
+            <a href="/products.html">Sản phẩm</a><span class="breadcrumb-sep">/</span>
+            <span id="breadcrumb-name">...</span>
+        </div>
+
+        <div id="product-content">
+            <div class="loading-state">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script>
+        const productId = new URLSearchParams(window.location.search).get('id');
+
+        async function loadProduct() {
+            if (!productId) { window.location.href = '/products.html'; return; }
+            const container = document.getElementById('product-content');
+            try {
+                const res = await ProductsAPI.getById(productId);
+                const p = res.data;
+                document.title = `${p.name} - ShopVN`;
+                document.getElementById('breadcrumb-name').textContent = p.name;
+
+                const img = p.imageUrl
+                    ? `<img src="${p.imageUrl}" alt="${p.name}" style="width:100%;border-radius:var(--radius-lg);background:#1a1d2a">`
+                    : `<div style="width:100%;aspect-ratio:1/1;border-radius:var(--radius-lg);background:linear-gradient(135deg,#1a1d2a,#1e2235);display:flex;align-items:center;justify-content:center;font-size:6rem">📦</div>`;
+
+                container.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" class="animate-fade">
+          <div>${img}</div>
+          <div>
+            <span class="tag tag-accent" style="margin-bottom:12px;display:inline-block">${p.categoryName || 'Sản phẩm'}</span>
+            <h1 style="font-size:2.25rem;font-weight:800;margin-bottom:16px;line-height:1.2">${p.name}</h1>
+            <div style="font-size:2rem;font-weight:900;color:var(--accent);margin-bottom:24px">${formatPrice(p.price)}</div>
+            
+            <div style="background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px">
+              <div style="font-weight:600;margin-bottom:8px">Mô tả sản phẩm</div>
+              <p style="color:var(--text-muted);line-height:1.8">${p.description || 'Chưa có mô tả cho sản phẩm này.'}</p>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+              <label style="font-weight:600;font-size:.9rem">Số lượng:</label>
+              <div class="qty-controls">
+                <button class="qty-btn" onclick="changeQty(-1)">−</button>
+                <span class="qty-val" id="qty-value">1</span>
+                <button class="qty-btn" onclick="changeQty(1)">+</button>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-full btn-lg" onclick="addProductToCart()" id="btn-add">
+              🛒 Thêm vào giỏ hàng
+            </button>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px">
+              <div style="text-align:center;padding:12px;background:var(--bg-glass);border-radius:var(--radius-sm)">
+                <div style="font-size:1.25rem;margin-bottom:4px">🚚</div>
+                <div style="font-size:.75rem;color:var(--text-muted)">Giao hàng nhanh</div>
+              </div>
+              <div style="text-align:center;padding:12px;background:var(--bg-glass);border-radius:var(--radius-sm)">
+                <div style="font-size:1.25rem;margin-bottom:4px">🔄</div>
+                <div style="font-size:.75rem;color:var(--text-muted)">Đổi trả 30 ngày</div>
+              </div>
+              <div style="text-align:center;padding:12px;background:var(--bg-glass);border-radius:var(--radius-sm)">
+                <div style="font-size:1.25rem;margin-bottom:4px">✅</div>
+                <div style="font-size:.75rem;color:var(--text-muted)">Chính hãng 100%</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+            } catch (e) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-icon">😕</div><div class="empty-title">Không tìm thấy sản phẩm</div><div class="empty-sub">${e.message}</div><a href="/products.html" class="btn btn-outline" style="margin-top:16px">← Quay lại</a></div>`;
+            }
+        }
+
+        let qty = 1;
+        function changeQty(d) {
+            qty = Math.max(1, Math.min(100, qty + d));
+            document.getElementById('qty-value').textContent = qty;
+        }
+
+        async function addProductToCart() {
+            if (!Auth.isLoggedIn()) {
+                showToast('Vui lòng đăng nhập trước', 'error');
+                setTimeout(() => window.location.href = '/login.html', 1200);
+                return;
+            }
+            const btn = document.getElementById('btn-add');
+            btn.disabled = true; btn.textContent = 'Đang thêm...';
+            try {
+                await CartAPI.addItem(parseInt(productId), qty);
+                await refreshCartCount();
+                showToast(`Đã thêm ${qty} sản phẩm vào giỏ hàng!`);
+            } catch (e) {
+                showToast(e.message || 'Lỗi', 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = '🛒 Thêm vào giỏ hàng';
+            }
+        }
+
+        loadProduct();
+    </script>
+    <style>
+        @media (max-width: 768px) {
+            #product-content>.animate-fade>div:first-child {
+                grid-column: 1 / -1;
+            }
+
+            #product-content>.animate-fade {
+                grid-template-columns: 1fr !important;
+                gap: 24px !important;
+            }
+        }
+    </style>
+</body>
+
+</html>

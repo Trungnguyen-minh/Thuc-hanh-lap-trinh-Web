@@ -56,6 +56,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<VnpayService>();
 builder.Services.AddHttpContextAccessor();
 
@@ -98,5 +99,8 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Serve index.html for root path
+app.MapFallbackToFile("index.html");
 
 app.Run();

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - ShopVN</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="auth-page">
+        <div class="auth-card animate-fade">
+            <div style="text-align:center;margin-bottom:8px">
+                <a href="/" class="navbar-brand" style="font-size:1.75rem;display:inline-block">✦ ShopVN</a>
+            </div>
+            <h1 class="auth-title" style="text-align:center">Tạo tài khoản</h1>
+            <p class="auth-sub" style="text-align:center">Đăng ký để bắt đầu mua sắm</p>
+
+            <form id="register-form" style="display:flex;flex-direction:column;gap:14px">
+                <div class="form-group">
+                    <label class="form-label">Họ và tên *</label>
+                    <input type="text" id="fullName" class="form-input" placeholder="Nguyễn Văn A" required
+                        minlength="2" maxlength="100" autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại *</label>
+                    <input type="tel" id="phoneNumber" class="form-input" placeholder="0901234567" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Địa chỉ</label>
+                    <input type="text" id="address" class="form-input" placeholder="TP. Hồ Chí Minh">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu *</label>
+                    <input type="password" id="password" class="form-input" placeholder="Ít nhất 6 ký tự" required
+                        minlength="6">
+                    <span class="form-hint">Gồm chữ hoa, chữ thường và số</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Xác nhận mật khẩu *</label>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Nhập lại mật khẩu"
+                        required>
+                </div>
+                <div id="register-error" class="alert alert-error" style="display:none"></div>
+                <button type="submit" class="btn btn-primary btn-full btn-lg" id="btn-register">Đăng ký</button>
+            </form>
+
+            <div class="auth-divider">hoặc</div>
+            <p style="text-align:center;font-size:.9rem;color:var(--text-muted)">
+                Đã có tài khoản? <a href="/login.html" class="auth-link">Đăng nhập</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        if (Auth.isLoggedIn()) window.location.href = '/';
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-register');
+            const errEl = document.getElementById('register-error');
+            errEl.style.display = 'none';
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword) {
+                errEl.textContent = 'Xác nhận mật khẩu không khớp';
+                errEl.style.display = 'flex'; return;
+            }
+
+            btn.disabled = true; btn.textContent = 'Đang đăng ký...';
+            try {
+                await AuthAPI.register({
+                    fullName: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                    address: document.getElementById('address').value.trim() || null,
+                    password,
+                    confirmPassword
+                });
+                window.location.href = '/';
+            } catch (e) {
+                errEl.textContent = e.message || 'Đăng ký thất bại';
+                errEl.style.display = 'flex';
+                btn.disabled = false; btn.textContent = 'Đăng ký';
+            }
+        });
+    </script>
+</body>
+
+</html>

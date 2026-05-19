@@ -46,4 +46,13 @@ namespace Website.Dtos
         public int Quantity { get; set; }
         public decimal SubTotal { get; set; }
     }
+
+    // Order summary for listing
+    public class OrderSummaryDto
+    {
+        public int OrderId { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
 }

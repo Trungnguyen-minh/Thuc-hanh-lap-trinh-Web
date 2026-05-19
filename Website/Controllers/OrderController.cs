@@ -18,6 +18,35 @@ namespace Website.Controllers
         public OrderController(IOrderService orderService) => _orderService = orderService;
 
         /// <summary>
+        /// Get all orders for current user
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 10;
+            var orders = await _orderService.GetAllAsync(GetUserId(), page, pageSize);
+            return Ok(ApiResponse<PagedResult<OrderSummaryDto>>.Ok(orders));
+        }
+
+        /// <summary>
+        /// Get order by ID
+        /// </summary>
+        [HttpGet("{orderId:int}")]
+        public async Task<IActionResult> GetById(int orderId)
+        {
+            try
+            {
+                var order = await _orderService.GetOrderConfirmationAsync(GetUserId(), orderId);
+                return Ok(ApiResponse<OrderConfirmationDto>.Ok(order));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ApiResponse<object>.Fail(ex.Message));
+            }
+        }
+
+        /// <summary>
         /// BƯỚC 2 — Reservation: Xác nhận thông tin giao hàng, giữ hàng
         /// </summary>
         [HttpPost("reserve")]
