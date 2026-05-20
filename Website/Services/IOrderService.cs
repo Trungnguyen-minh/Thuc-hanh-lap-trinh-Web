@@ -1,4 +1,4 @@
-﻿using Website.Dtos;
+using Website.Dtos;
 using static Website.Dtos.DTOs;
 
 namespace Website.Services
@@ -19,5 +19,14 @@ namespace Website.Services
 
         // Bước 4: Lấy thông tin xác nhận đơn hàng
         Task<OrderConfirmationDto> GetOrderConfirmationAsync(string userId, int orderId);
+
+        // Admin: Lấy toàn bộ đơn hàng
+        Task<PagedResult<AdminOrderDto>> GetAllOrdersAdminAsync(int page, int pageSize);
+
+        // Admin: Cập nhật trạng thái
+        Task<bool> UpdateOrderStatusAsync(int orderId, string status);
+
+        // Khách hàng tự hủy đơn hàng
+        Task<bool> CancelOrderAsync(string userId, int orderId);
     }
 }

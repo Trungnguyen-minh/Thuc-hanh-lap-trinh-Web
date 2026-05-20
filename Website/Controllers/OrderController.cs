@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Website.Dtos;
@@ -118,6 +118,55 @@ namespace Website.Controllers
             {
                 return NotFound(ApiResponse<object>.Fail(ex.Message));
             }
+        }
+
+        /// <summary>
+        /// Khách hàng tự hủy đơn hàng
+        /// </summary>
+        [HttpPost("{orderId:int}/cancel")]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            try
+            {
+                var success = await _orderService.CancelOrderAsync(GetUserId(), orderId);
+                if (!success)
+                    return BadRequest(ApiResponse<object>.Fail("Không tìm thấy đơn hàng hoặc không thể hủy đơn hàng này."));
+                
+                return Ok(ApiResponse<object>.Ok(null, "Hủy đơn hàng thành công."));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+            }
+        }
+
+        // ─── BƯỚC 5: ADMIN MANAGEMENT ────────────────────────
+        
+        /// <summary>
+        /// Lấy toàn bộ đơn hàng (Dành cho Admin)
+        /// </summary>
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllAdmin([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 10;
+            var orders = await _orderService.GetAllOrdersAdminAsync(page, pageSize);
+            return Ok(ApiResponse<PagedResult<AdminOrderDto>>.Ok(orders));
+        }
+
+        /// <summary>
+        /// Cập nhật trạng thái đơn hàng (Dành cho Admin)
+        /// </summary>
+        [HttpPut("admin/{orderId:int}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatus(int orderId, [FromBody] UpdateOrderStatusDto dto)
+        {
+            var success = await _orderService.UpdateOrderStatusAsync(orderId, dto.Status);
+            if (!success)
+                return BadRequest(ApiResponse<object>.Fail("Không tìm thấy đơn hàng hoặc trạng thái không hợp lệ."));
+            
+            return Ok(ApiResponse<object>.Ok(null, "Cập nhật trạng thái thành công."));
         }
 
         private string GetUserId() =>

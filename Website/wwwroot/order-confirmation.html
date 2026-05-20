@@ -36,11 +36,13 @@
             try {
                 const res = await OrderAPI.getConfirmation(orderId);
                 const o = res.data;
+                const isCod = o.status === 'Reserved' && !o.vnpayTransactionId;
                 const statusMap = {
                     'Pending': ['⏳', 'Chờ xử lý', 'status-pending'],
-                    'Reserved': ['📦', 'Đã giữ hàng', 'status-reserved'],
+                    'Reserved': isCod ? ['📦', 'Chờ giao hàng (COD)', 'status-reserved'] : ['📦', 'Đã giữ hàng', 'status-reserved'],
                     'Paid': ['💳', 'Đã thanh toán', 'status-paid'],
-                    'Confirmed': ['✅', 'Hoàn tất', 'status-confirmed']
+                    'Confirmed': ['✅', 'Hoàn tất', 'status-confirmed'],
+                    'Cancelled': ['❌', 'Đã hủy', 'status-cancelled']
                 };
                 const [icon, label, cls] = statusMap[o.status] || ['📋', o.status, 'status-pending'];
 
@@ -68,7 +70,7 @@
               </div>
               <div>
                 <div style="color:var(--text-muted);margin-bottom:4px">📅 Ngày đặt</div>
-                <div style="font-weight:500">${new Date(o.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                <div style="font-weight:500">${parseDateTime(o.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
               </div>
               ${o.vnpayTransactionId ? `
               <div>

@@ -69,6 +69,38 @@
               </form>
             </div>
 
+            <div class="card" style="padding:28px;margin-bottom:24px">
+              <h3 style="font-weight:700;margin-bottom:16px">💳 Phương thức thanh toán</h3>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <!-- VNPAY -->
+                <div id="vnpay-container" style="border:1px solid var(--accent); border-radius:8px; padding:16px; background:rgba(108,99,255,0.05); display:flex; align-items:center; gap:12px;">
+                  <input type="radio" id="payment-vnpay" name="payment_method" value="vnpay" checked style="accent-color: var(--accent); transform: scale(1.2);" onchange="updatePaymentText()">
+                  <label for="payment-vnpay" style="display:flex; align-items:center; gap:12px; width:100%; cursor:pointer;">
+                    <div style="width:40px; height:40px; background:white; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; color:#005a9e; font-size:0.7rem; border:1px solid #e5e7eb;">
+                      VNPAY
+                    </div>
+                    <div>
+                      <div style="font-weight:600;">Thanh toán qua VNPAY</div>
+                      <div style="font-size:0.8rem; color:var(--text-muted);">Thẻ ATM, Visa, MasterCard, JCB, QR Code</div>
+                    </div>
+                  </label>
+                </div>
+                <!-- COD -->
+                <div id="cod-container" style="border:1px solid var(--border); border-radius:8px; padding:16px; display:flex; align-items:center; gap:12px;">
+                  <input type="radio" id="payment-cod" name="payment_method" value="cod" style="accent-color: var(--accent); transform: scale(1.2);" onchange="updatePaymentText()">
+                  <label for="payment-cod" style="display:flex; align-items:center; gap:12px; width:100%; cursor:pointer;">
+                    <div style="width:40px; height:40px; background:white; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; color:#10b981; font-size:0.7rem; border:1px solid #e5e7eb;">
+                      COD
+                    </div>
+                    <div>
+                      <div style="font-weight:600;">Thanh toán khi nhận hàng (COD)</div>
+                      <div style="font-size:0.8rem; color:var(--text-muted);">Thanh toán bằng tiền mặt khi shipper giao hàng</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <div class="card" style="padding:28px">
               <h3 style="font-weight:700;margin-bottom:16px">📦 Sản phẩm (${cart.totalItems})</h3>
               <div style="display:flex;flex-direction:column;gap:12px">
@@ -99,7 +131,7 @@
             <button class="btn btn-primary btn-full btn-lg" style="margin-top:20px" onclick="placeOrder()" id="btn-order">
               Đặt hàng ngay
             </button>
-            <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-muted)">
+            <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-muted)" id="payment-subtext">
               Bạn sẽ được chuyển đến trang thanh toán VNPay
             </p>
           </div>
@@ -109,12 +141,37 @@
             }
         }
 
+        function updatePaymentText() {
+            const isVnpay = document.getElementById('payment-vnpay').checked;
+            const vnpayContainer = document.getElementById('vnpay-container');
+            const codContainer = document.getElementById('cod-container');
+            const subtext = document.getElementById('payment-subtext');
+            const btnOrder = document.getElementById('btn-order');
+
+            if (isVnpay) {
+                vnpayContainer.style.border = '1px solid var(--accent)';
+                vnpayContainer.style.background = 'rgba(108,99,255,0.05)';
+                codContainer.style.border = '1px solid var(--border)';
+                codContainer.style.background = 'none';
+                subtext.textContent = 'Bạn sẽ được chuyển đến trang thanh toán VNPay';
+                btnOrder.textContent = 'Đặt hàng ngay';
+            } else {
+                vnpayContainer.style.border = '1px solid var(--border)';
+                vnpayContainer.style.background = 'none';
+                codContainer.style.border = '1px solid var(--accent)';
+                codContainer.style.background = 'rgba(108,99,255,0.05)';
+                subtext.textContent = 'Đơn hàng sẽ được thanh toán bằng tiền mặt khi giao hàng (COD)';
+                btnOrder.textContent = 'Đặt hàng ngay (COD)';
+            }
+        }
+
         async function placeOrder() {
             const phone = document.getElementById('phone');
             const address = document.getElementById('address');
             const note = document.getElementById('note');
             const errEl = document.getElementById('checkout-error');
             const btn = document.getElementById('btn-order');
+            const isVnpay = document.getElementById('payment-vnpay').checked;
 
             // Validate
             if (!phone.value.match(/^(0[35789])[0-9]{8}$/)) {
@@ -136,20 +193,24 @@
                 });
                 const orderId = orderRes.data.orderId;
 
-                // Create VNPay payment
-                try {
-                    const payRes = await OrderAPI.createPayment(orderId);
-                    if (payRes.data?.paymentUrl) {
-                        window.location.href = payRes.data.paymentUrl;
-                        return;
+                if (isVnpay) {
+                    // Create VNPay payment
+                    try {
+                        const payRes = await OrderAPI.createPayment(orderId);
+                        if (payRes.data?.paymentUrl) {
+                            window.location.href = `/vnpay-mock.html?orderId=${orderId}&txnRef=${payRes.data.paymentUrl}&amount=${orderRes.data.totalAmount}`;
+                            return;
+                        }
+                    } catch {
+                        // If VNPay fails, still show confirmation
                     }
-                } catch {
-                    // If VNPay fails, still show confirmation
                 }
+                
+                // For COD (or failed VNPAY), go straight to confirmation page
                 window.location.href = `/order-confirmation.html?orderId=${orderId}`;
             } catch (e) {
                 errEl.textContent = e.message; errEl.style.display = 'flex';
-                btn.disabled = false; btn.textContent = 'Đặt hàng ngay';
+                btn.disabled = false; btn.textContent = isVnpay ? 'Đặt hàng ngay' : 'Đặt hàng ngay (COD)';
             }
         }
 

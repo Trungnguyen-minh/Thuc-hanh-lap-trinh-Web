@@ -17,9 +17,10 @@ function renderNavbar(activePage = '') {
           <span class="badge cart-count-badge" style="display:${cartCount > 0 ? 'flex' : 'none'}">${cartCount}</span>
         </a>
         ${user ? `
-          <div class="nav-user">
-            ${isAdmin ? `<a href="/admin.html" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; margin-right: 8px; border-color: var(--accent); color: var(--accent);">⚙️ Bảng Quản Trị</a>` : ''}
-            <span class="username" title="${user.fullName}">👋 ${user.fullName}</span>
+          <div class="nav-user" style="display:flex;align-items:center;gap:12px;">
+            ${isAdmin ? `<a href="/admin.html" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; border-color: var(--accent); color: var(--accent);">⚙️ Bảng Quản Trị</a>` : ''}
+            <a href="/orders.html" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; border-color: #10b981; color: #10b981;">📦 Lịch sử Đơn hàng</a>
+            <span class="username" title="${user.fullName}" style="font-weight:600">👋 ${user.fullName}</span>
             <button onclick="AuthAPI.logout()" class="btn-logout">Đăng xuất</button>
           </div>
         ` : `

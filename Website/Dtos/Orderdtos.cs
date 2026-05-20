@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Website.Models;
 
 namespace Website.Dtos
@@ -47,12 +47,27 @@ namespace Website.Dtos
         public decimal SubTotal { get; set; }
     }
 
-    // Order summary for listing
     public class OrderSummaryDto
     {
         public int OrderId { get; set; }
         public string Status { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    public class AdminOrderDto
+    {
+        public int OrderId { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string CustomerEmail { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string? VnpayTransactionId { get; set; }
+    }
+
+    public class UpdateOrderStatusDto
+    {
+        public string Status { get; set; } = string.Empty;
     }
 }

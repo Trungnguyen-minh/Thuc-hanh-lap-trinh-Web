@@ -1121,6 +1121,12 @@ select {
     color: #a78bfa;
 }
 
+.status-cancelled {
+    background: rgba(239, 68, 68, .1);
+    color: #f87171;
+}
+
+
 /* ── ANIMATIONS ──────────────────────────────────────────────── */
 @keyframes fadeInDown {
     from {

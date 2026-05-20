@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 
@@ -9,7 +9,7 @@ namespace Website.Services
         public (string transactionId, bool success) SimulatePayment(int orderId, decimal amount)
         {
             // Tạo mã giao dịch giả
-            var transactionId = $"MOCK_{orderId}_{DateTime.UtcNow:yyyyMMddHHmmss}";
+            var transactionId = $"{orderId}_{DateTime.UtcNow:yyyyMMddHHmmss}";
             return (transactionId, true);
         }
 

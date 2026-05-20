@@ -1,11 +1,12 @@
-﻿namespace Website.Models
+namespace Website.Models
 {
     public enum OrderStatus
     {
         Pending,        // Bước 1: Cart
         Reserved,       // Bước 2: Reservation - đã giữ hàng
         Paid,           // Bước 3: Payment - đã thanh toán
-        Confirmed       // Bước 4: Order Confirmation - hoàn tất
+        Confirmed,      // Bước 4: Order Confirmation - hoàn tất
+        Cancelled       // Bước 5: Đã hủy đơn hàng
     }
     public class Order
     {

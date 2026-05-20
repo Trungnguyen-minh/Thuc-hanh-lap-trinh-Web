@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lịch sử đơn hàng - ShopVN">
+    <title>Lịch sử đơn hàng - ShopVN</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container" data-active=""></div>
+
+    <section class="section-sm container">
+        <h1 style="font-size:2rem;font-weight:800;margin-bottom:32px">📦 Lịch sử đơn hàng</h1>
+        
+        <div id="orders-content">
+            <div class="loading-state">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script>
+        async function loadOrders() {
+            if (!Auth.isLoggedIn()) { window.location.href = '/login.html'; return; }
+            
+            const container = document.getElementById('orders-content');
+            try {
+                const res = await OrderAPI.getAll();
+                const orders = res.data?.items || [];
+                
+                if (orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📦</div>
+                            <div class="empty-title">Bạn chưa có đơn hàng nào</div>
+                            <a href="/products.html" class="btn btn-primary" style="margin-top:16px">Bắt đầu mua sắm</a>
+                        </div>`;
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div style="display:flex;flex-direction:column;gap:16px;">
+                        ${orders.map(o => {
+                            const date = parseDateTime(o.createdAt).toLocaleString('vi-VN');
+                            let statusColor = 'var(--text-muted)';
+                            let statusText = o.status;
+                            
+                            switch(o.status) {
+                                case 'Pending': statusText = 'Chờ xử lý'; statusColor = '#f59e0b'; break;
+                                case 'Reserved': statusText = 'Chờ giao hàng / Giữ hàng'; statusColor = '#3b82f6'; break;
+                                case 'Paid': statusText = 'Đã thanh toán'; statusColor = '#8b5cf6'; break;
+                                case 'Confirmed': statusText = 'Hoàn tất'; statusColor = '#10b981'; break;
+                                case 'Cancelled': statusText = 'Đã hủy'; statusColor = '#ef4444'; break;
+                            }
+                            
+                            const canCancel = o.status === 'Pending' || o.status === 'Reserved';
+                            const cancelBtn = canCancel ? `
+                                <div style="margin-top:8px">
+                                    <button class="btn btn-outline" style="border-color: #ef4444; color: #ef4444; padding: 4px 12px; font-size: 0.75rem; border-radius: 20px; font-weight:600; cursor: pointer; background: transparent; transition: all 0.2s;" onmouseover="this.style.background='#ef444420'" onmouseout="this.style.background='transparent'" onclick="cancelOrder(${o.orderId})">
+                                        ❌ Hủy đơn hàng
+                                    </button>
+                                </div>
+                            ` : '';
+                            
+                            return `
+                                <div class="card" style="padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+                                    <div>
+                                        <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Đơn hàng #${o.orderId}</div>
+                                        <div style="font-size:0.85rem;color:var(--text-muted)">Đặt lúc: ${date}</div>
+                                    </div>
+                                    <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
+                                        <div style="font-weight:800;color:var(--accent);font-size:1.2rem;margin-bottom:4px">${formatPrice(o.totalAmount)}</div>
+                                        <div style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;background:${statusColor}20;color:${statusColor}">
+                                            ${statusText}
+                                        </div>
+                                        ${cancelBtn}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Lỗi khi tải lịch sử đơn hàng. Vui lòng thử lại.</div>`;
+            }
+        }
+        
+        async function cancelOrder(orderId) {
+            if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) return;
+            try {
+                const res = await OrderAPI.cancel(orderId);
+                if (res.success) {
+                    showToast('Hủy đơn hàng thành công!');
+                    loadOrders();
+                } else {
+                    showToast(res.message || 'Lỗi khi hủy đơn hàng', 'error');
+                }
+            } catch (e) {
+                showToast(e.message || 'Lỗi khi hủy đơn hàng', 'error');
+            }
+        }
+        
+        loadOrders();
+    </script>
+</body>
+
+</html>

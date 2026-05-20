@@ -167,7 +167,17 @@ const OrderAPI = {
     },
     reserve(dto) { return apiFetch('/api/order/reserve', { method: 'POST', body: JSON.stringify(dto) }); },
     createPayment(orderId) { return apiFetch(`/api/order/${orderId}/payment`, { method: 'POST' }); },
-    getConfirmation(orderId) { return apiFetch(`/api/order/${orderId}/confirmation`); }
+    getConfirmation(orderId) { return apiFetch(`/api/order/${orderId}/confirmation`); },
+    cancel(orderId) { return apiFetch(`/api/order/${orderId}/cancel`, { method: 'POST' }); },
+    getAllAdmin(page = 1, pageSize = 20) {
+        return apiFetch(`/api/order/admin?page=${page}&pageSize=${pageSize}`);
+    },
+    updateStatusAdmin(orderId, status) {
+        return apiFetch(`/api/order/admin/${orderId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status })
+        });
+    }
 };
 
 // ── HELPERS ─────────────────────────────────────────────────────
@@ -210,4 +220,13 @@ async function refreshCartCount() {
         const res = await CartAPI.get();
         setCartCount(res.data?.totalItems || 0);
     } catch { setCartCount(0); }
+}
+
+function parseDateTime(dateStr) {
+    if (!dateStr) return new Date();
+    // Nếu chuỗi không chứa thông tin múi giờ (Z hoặc +), ta coi nó là UTC và thêm 'Z'
+    if (!dateStr.endsWith('Z') && !dateStr.includes('+')) {
+        return new Date(dateStr + 'Z');
+    }
+    return new Date(dateStr);
 }

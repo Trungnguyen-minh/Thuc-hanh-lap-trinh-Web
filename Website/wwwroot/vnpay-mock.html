@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng thanh toán mô phỏng - VNPAY Sandbox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        body { background: #f3f4f6; color: #1f2937; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .vnpay-container { background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; width: 100%; max-width: 480px; }
+        .vnpay-header { background: #005a9e; color: white; padding: 20px; text-align: center; }
+        .vnpay-header h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
+        .vnpay-header p { opacity: 0.8; font-size: 0.9rem; margin-top: 5px; }
+        .vnpay-body { padding: 30px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px dashed #e5e7eb; padding-bottom: 10px; }
+        .info-label { color: #6b7280; font-weight: 500; }
+        .info-value { font-weight: 600; text-align: right; word-break: break-all; }
+        .price { font-size: 1.8rem; font-weight: 800; color: #dc2626; text-align: center; margin: 20px 0; }
+        .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="vnpay-container">
+        <div class="vnpay-header">
+            <h2>VNPAY</h2>
+            <p>Môi trường thử nghiệm (Sandbox)</p>
+        </div>
+        <div class="vnpay-body">
+            <h3 style="text-align: center; margin-bottom: 24px;">Thông tin giao dịch</h3>
+            <div class="info-row">
+                <span class="info-label">Đơn vị chấp nhận:</span>
+                <span class="info-value">ShopVN DEMO</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Mã đơn hàng:</span>
+                <span class="info-value" id="disp-order-id">--</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Mã giao dịch (TxnRef):</span>
+                <span class="info-value" id="disp-txn-ref" style="font-size: 0.85rem;">--</span>
+            </div>
+            
+            <div class="price" id="disp-amount">0đ</div>
+
+            <p style="text-align: center; font-size: 0.85rem; color: #6b7280; margin-bottom: 24px;">
+                Đây là giao diện mô phỏng thanh toán. Vui lòng chọn hành động dưới đây để mô phỏng trạng thái trả về.
+            </p>
+
+            <button class="btn btn-success" id="btn-success" onclick="processPayment(true)">Thanh toán thành công (00)</button>
+            <button class="btn btn-danger" id="btn-fail" onclick="processPayment(false)">Hủy giao dịch (24)</button>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        const txnRef = urlParams.get('txnRef');
+        const amount = urlParams.get('amount') || '0';
+
+        document.getElementById('disp-order-id').textContent = '#' + orderId;
+        document.getElementById('disp-txn-ref').textContent = txnRef;
+        document.getElementById('disp-amount').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+        async function processPayment(isSuccess) {
+            document.getElementById('btn-success').classList.add('btn-disabled');
+            document.getElementById('btn-fail').classList.add('btn-disabled');
+            document.getElementById('btn-success').textContent = "Đang xử lý...";
+
+            const responseCode = isSuccess ? '00' : '24';
+            const transactionNo = 'MOCK_' + Date.now();
+            
+            try {
+                // Call our server's VNPAY callback endpoint
+                await fetch(`/api/order/vnpay-callback?vnp_ResponseCode=${responseCode}&vnp_TxnRef=${txnRef}&vnp_TransactionNo=${transactionNo}`);
+                
+                if (isSuccess) {
+                    window.location.href = `/order-confirmation.html?orderId=${orderId}`;
+                } else {
+                    alert('Giao dịch đã bị hủy. Đơn hàng sẽ được hoàn lại kho.');
+                    window.location.href = '/cart.html';
+                }
+            } catch (error) {
+                alert('Có lỗi xảy ra khi giả lập thanh toán.');
+                window.location.href = '/cart.html';
+            }
+        }
+    </script>
+</body>
+</html>

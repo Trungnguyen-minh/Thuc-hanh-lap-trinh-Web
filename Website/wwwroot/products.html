@@ -1,57 +1,399 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html class="light" lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Khám phá tất cả sản phẩm tại ShopVN">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="description" content="Khám phá tất cả sản phẩm cao cấp tại ShopVN. Đầy đủ các danh mục công nghệ, thời trang và thiết bị thông minh." />
     <title>Sản phẩm - ShopVN</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e1e3e4",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#414754",
+                        "surface-dim": "#d9dadb",
+                        "on-background": "#191c1d",
+                        "outline": "#727785",
+                        "secondary-container": "#e3e2e6",
+                        "tertiary-container": "#c55500",
+                        "secondary": "#5e5e62",
+                        "on-surface": "#191c1d",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary-container": "#646468",
+                        "on-primary-container": "#ffffff",
+                        "background": "#f8f9fa",
+                        "outline-variant": "#c1c6d6",
+                        "on-secondary-fixed-variant": "#46474a",
+                        "inverse-on-surface": "#f0f1f2",
+                        "primary": "#005bbf",
+                        "secondary-fixed": "#e3e2e6",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#adc7ff",
+                        "surface-container-high": "#e7e8e9",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#005bc0",
+                        "tertiary-fixed": "#ffdbcb",
+                        "tertiary": "#9e4300",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-tertiary-container": "#0e0200",
+                        "surface-container": "#edeeef",
+                        "surface-bright": "#f8f9fa",
+                        "on-tertiary-fixed-variant": "#783100",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#adc7ff",
+                        "on-secondary-fixed": "#1a1b1e",
+                        "on-tertiary-fixed": "#341100",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "surface": "#f8f9fa",
+                        "inverse-surface": "#2e3132",
+                        "on-primary-fixed": "#001a41",
+                        "primary-container": "#1a73e8",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-low": "#f3f4f5",
+                        "secondary-fixed-dim": "#c7c6ca",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .product-card-hover {
+            will-change: transform, box-shadow;
+        }
+        .product-card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 91, 191, 0.06);
+        }
+        
+        #toast-container {
+            z-index: 9999;
+        }
+    </style>
 </head>
 
-<body>
-    <div id="navbar-container" data-active="products"></div>
-
-    <section class="section-sm container">
-        <div class="breadcrumb" style="margin-bottom:24px">
-            <a href="/">Trang chủ</a><span class="breadcrumb-sep">/</span><span>Sản phẩm</span>
-        </div>
-
-        <h1 style="font-size:2rem;font-weight:800;margin-bottom:24px">Tất cả sản phẩm</h1>
-
-        <!-- FILTERS -->
-        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;align-items:stretch">
-            <div class="search-bar" style="flex:1;min-width:260px">
-                <input type="text" id="search-input" placeholder="Tìm kiếm sản phẩm..."
-                    onkeydown="if(event.key==='Enter')searchProducts()">
-                <button class="search-btn" onclick="searchProducts()">🔍</button>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+    <!-- TopAppBar -->
+    <header class="bg-surface w-full top-0 sticky shadow-sm border-b border-outline-variant z-50 transition-all duration-300">
+        <div class="flex justify-between items-center h-16 px-margin-desktop max-w-container-max mx-auto gap-4">
+            <div class="flex items-center gap-8">
+                <span class="font-headline-md text-headline-md font-bold text-primary cursor-pointer shrink-0" onclick="window.location='/'">✦ ShopVN</span>
+                <nav class="hidden md:flex gap-6 items-center">
+                    <a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors px-3 py-2 rounded-lg" href="/">Trang chủ</a>
+                    <a class="font-body-md text-body-md text-primary font-medium px-3 py-2 rounded-lg bg-primary/5" href="/products.html">Sản phẩm</a>
+                </nav>
             </div>
-            <select id="category-filter" class="form-input" style="min-width:180px;cursor:pointer"
-                onchange="filterByCategory()">
-                <option value="">Tất cả danh mục</option>
-            </select>
-        </div>
-
-        <!-- PRODUCT GRID -->
-        <div class="product-grid" id="products-grid">
-            <div class="loading-state" style="grid-column:1/-1">
-                <div class="spinner"></div>
+            
+            <div class="flex items-center gap-6 flex-1 max-w-md mx-4">
+                <div class="relative w-full">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+                    <input id="search-input" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-body-md" placeholder="Tìm kiếm sản phẩm..." type="text" />
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 shrink-0">
+                <button class="p-2 hover:bg-surface-container-low rounded-full transition-colors relative group" onclick="window.location='/cart.html'">
+                    <span class="material-symbols-outlined text-secondary group-hover:text-primary">shopping_cart</span>
+                    <span class="absolute top-1 right-1 bg-tertiary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold cart-count-badge" style="display:none">0</span>
+                </button>
+                <div id="auth-section" class="flex items-center gap-2">
+                    <button class="p-2 hover:bg-surface-container-low rounded-full transition-colors group" onclick="window.location='/login.html'">
+                        <span class="material-symbols-outlined text-secondary group-hover:text-primary">account_circle</span>
+                    </button>
+                </div>
             </div>
         </div>
+    </header>
 
-        <!-- PAGINATION -->
-        <div style="margin-top:40px" id="pagination-container"></div>
-    </section>
+    <main class="flex-grow max-w-container-max w-full mx-auto px-margin-desktop py-8">
+        <div class="breadcrumb text-sm mb-6 flex items-center gap-2 text-outline">
+            <a href="/" class="hover:text-primary transition-colors">Trang chủ</a>
+            <span class="material-symbols-outlined text-xs">chevron_right</span>
+            <span class="text-on-surface font-medium">Sản phẩm</span>
+        </div>
 
-    <div id="footer-container"></div>
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left Sidebar Filters -->
+            <aside class="w-full lg:w-64 shrink-0 space-y-6">
+                <!-- Dynamic Categories -->
+                <div class="bg-white p-5 rounded-xl border border-outline-variant shadow-sm">
+                    <h3 class="font-title-lg text-sm font-bold mb-4 text-on-surface flex items-center justify-between">
+                        <span>Danh mục</span>
+                        <span class="material-symbols-outlined text-outline text-[20px]">category</span>
+                    </h3>
+                    <div class="space-y-1" id="categories-list">
+                        <div class="flex justify-center items-center py-4">
+                            <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brand Filter -->
+                <div class="bg-white p-5 rounded-xl border border-outline-variant shadow-sm">
+                    <h3 class="font-title-lg text-sm font-bold mb-4 text-on-surface flex items-center justify-between">
+                        <span>Thương hiệu</span>
+                        <span class="material-symbols-outlined text-outline text-[20px]">verified</span>
+                    </h3>
+                    <div class="space-y-3" id="brands-list">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="brand-checkbox w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/20 cursor-pointer" type="checkbox" value="TechNexus" onchange="applyFilters()"/>
+                            <span class="font-body-md text-sm text-on-surface-variant group-hover:text-primary transition-colors">TechNexus</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="brand-checkbox w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/20 cursor-pointer" type="checkbox" value="LuxeLife" onchange="applyFilters()"/>
+                            <span class="font-body-md text-sm text-on-surface-variant group-hover:text-primary transition-colors">LuxeLife</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="brand-checkbox w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/20 cursor-pointer" type="checkbox" value="UrbanEdge" onchange="applyFilters()"/>
+                            <span class="font-body-md text-sm text-on-surface-variant group-hover:text-primary transition-colors">UrbanEdge</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input class="brand-checkbox w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/20 cursor-pointer" type="checkbox" value="NovaCore" onchange="applyFilters()"/>
+                            <span class="font-body-md text-sm text-on-surface-variant group-hover:text-primary transition-colors">NovaCore</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Price Filter -->
+                <div class="bg-white p-5 rounded-xl border border-outline-variant shadow-sm">
+                    <h3 class="font-title-lg text-sm font-bold mb-4 text-on-surface flex items-center justify-between">
+                        <span>Khoảng giá</span>
+                        <span class="material-symbols-outlined text-outline text-[20px]">payments</span>
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2">
+                            <div class="relative flex-1">
+                                <input id="price-min" class="w-full p-2 rounded-lg border border-outline-variant font-label-md text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Min" type="number" oninput="handleMinPriceInput()"/>
+                            </div>
+                            <span class="text-outline text-xs">-</span>
+                            <div class="relative flex-1">
+                                <input id="price-max" class="w-full p-2 rounded-lg border border-outline-variant font-label-md text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Max" type="number" oninput="handleMaxPriceInput()"/>
+                            </div>
+                        </div>
+                        <div class="space-y-2 pt-2">
+                            <input id="price-slider" class="w-full accent-primary h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer" type="range" min="0" max="20000000" step="100000" value="20000000" oninput="handleSliderInput()"/>
+                            <div class="flex justify-between text-[10px] text-outline font-semibold uppercase">
+                                <span>0₫</span>
+                                <span id="slider-max-display">20.000.000₫</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ratings Filter -->
+                <div class="bg-white p-5 rounded-xl border border-outline-variant shadow-sm">
+                    <h3 class="font-title-lg text-sm font-bold mb-4 text-on-surface flex items-center justify-between">
+                        <span>Đánh giá</span>
+                        <span class="material-symbols-outlined text-outline text-[20px]">star_rate</span>
+                    </h3>
+                    <div class="space-y-2">
+                        <div id="star-filter-4" onclick="toggleStarFilter(4)" class="flex items-center gap-2 cursor-pointer hover:bg-surface-container-low rounded-lg p-2 transition-all border border-transparent duration-200">
+                            <div class="flex text-tertiary">
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-[18px]">star</span>
+                            </div>
+                            <span class="font-label-md text-xs text-on-surface-variant font-medium">Từ 4 sao</span>
+                        </div>
+                        <div id="star-filter-3" onclick="toggleStarFilter(3)" class="flex items-center gap-2 cursor-pointer hover:bg-surface-container-low rounded-lg p-2 transition-all border border-transparent duration-200">
+                            <div class="flex text-tertiary">
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-[18px]">star</span>
+                                <span class="material-symbols-outlined text-[18px]">star</span>
+                            </div>
+                            <span class="font-label-md text-xs text-on-surface-variant font-medium">Từ 3 sao</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Product Grid Area -->
+            <section class="flex-grow">
+                <!-- Meta Grid Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-outline-variant gap-4">
+                    <div>
+                        <h2 class="font-headline-md text-xl font-bold text-on-surface flex items-baseline gap-2">
+                            <span id="results-title">Tất cả sản phẩm</span>
+                            <span id="results-count" class="font-body-md text-xs text-on-surface-variant font-normal">(đang tải...)</span>
+                        </h2>
+                        <div id="active-search-badge" class="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary text-xs rounded-full font-semibold" style="display:none">
+                            <span>Từ khóa: </span>
+                            <span id="search-keyword-display">...</span>
+                            <button onclick="clearSearch()" class="material-symbols-outlined text-[14px] hover:bg-primary/20 rounded-full p-0.5 leading-none">close</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                        <span class="font-label-md text-xs text-on-surface-variant font-medium shrink-0">Sắp xếp:</span>
+                        <select id="sort-select" onchange="applyFilters()" class="bg-white border border-outline-variant rounded-lg p-2 text-xs font-medium focus:ring-primary/20 focus:border-primary outline-none cursor-pointer">
+                            <option value="popular">Phổ biến nhất</option>
+                            <option value="price-asc">Giá: Thấp đến Cao</option>
+                            <option value="price-desc">Giá: Cao đến Thấp</option>
+                            <option value="newest">Mới nhất</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Product Dynamic Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="products-grid">
+                    <!-- Loading state -->
+                    <div class="col-span-full flex flex-col justify-center items-center py-20">
+                        <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p class="text-outline text-sm">Đang tải danh sách sản phẩm...</p>
+                    </div>
+                </div>
+
+                <!-- Beautiful Pagination -->
+                <div class="mt-12 flex justify-center items-center gap-2" id="pagination-container">
+                    <!-- Dynamic Pagination -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-highest w-full mt-auto border-t border-outline-variant">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-12 max-w-container-max mx-auto">
+            <div class="space-y-4">
+                <span class="font-title-lg text-title-lg font-bold text-on-surface cursor-pointer" onclick="window.location='/'">✦ ShopVN</span>
+                <p class="font-body-sm text-label-sm text-on-surface-variant leading-relaxed">Nền tảng bán lẻ trực tuyến hàng đầu Việt Nam. Chúng tôi cam kết mang đến những trải nghiệm mua sắm số tốt nhất cho mọi khách hàng.</p>
+                <div class="flex gap-4">
+                    <button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
+                        <span class="material-symbols-outlined text-[20px]">public</span>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
+                        <span class="material-symbols-outlined text-[20px]">mail</span>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300">
+                        <span class="material-symbols-outlined text-[20px]">call</span>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <h5 class="font-label-md font-bold mb-4 uppercase tracking-wider text-on-surface text-xs">Hỗ trợ khách hàng</h5>
+                <ul class="space-y-2 text-label-sm text-xs">
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Trung tâm trợ giúp</a></li>
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Thông tin vận chuyển</a></li>
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Chính sách đổi trả</a></li>
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Liên hệ hỗ trợ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-label-md font-bold mb-4 uppercase tracking-wider text-on-surface text-xs">Thông tin công ty</h5>
+                <ul class="space-y-2 text-label-sm text-xs">
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Về chúng tôi</a></li>
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Chính sách bảo mật</a></li>
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Điều khoản dịch vụ</a></li>
+                    <li><a class="text-on-surface-variant hover:text-primary transition-colors underline decoration-transparent hover:decoration-primary" href="#">Hệ thống cửa hàng</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-label-md font-bold mb-4 uppercase tracking-wider text-on-surface text-xs">Đăng ký nhận tin</h5>
+                <p class="text-label-sm text-on-surface-variant mb-4 text-xs leading-relaxed">Nhận ngay voucher 100k khi đăng ký nhận tin khuyến mãi mới nhất.</p>
+                <div class="flex gap-2">
+                    <input id="footer-newsletter-input" class="bg-surface p-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary flex-1 text-xs text-on-surface" placeholder="Email của bạn" type="email" />
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg font-semibold text-xs hover:bg-primary/95 transition-colors" onclick="subscribeNewsletter()">Gửi</button>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-outline-variant py-6 px-margin-desktop max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="font-body-sm text-label-sm text-on-surface-variant text-xs">© 2026 ShopVN. All rights reserved.</p>
+            <div class="flex gap-4">
+                <img class="h-6 opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj6fpbYUarXRyF89vMviWU-yyooIJ2myR2khD-k_go8ZtHdlyDRtegHVRR7EfEfyfaGSmVHzA6wEVPGjquf_D5bsQXsinehypbh_yONHy26a7aD8eL2h1yjI4My83bCubJkjeqk1hB7rKwU-V-zdY1qSV00g7rMpgbQAkS27CoyS1xQ616AQCJKh6Qq0leSX6kyrIYKBbJBjtTpKOh1LLkFzxhamVNFi217tNvLqg8J83YVxu3j7ziankL9ryVHjzjMfGOMrrMcQEU" alt="Payment Methods" />
+            </div>
+        </div>
+    </footer>
 
     <script src="/js/api.js"></script>
     <script src="/js/components.js"></script>
     <script>
+        // State variables
+        let allProducts = [];
+        let filteredProducts = [];
+        let categories = [];
+        let selectedCategoryId = "";
+        let selectedStarFilter = null;
+        
         let currentPage = 1;
-        const pageSize = 12;
+        const pageSize = 9; // Show 9 items per page (3x3 grid)
 
-        function getParams() {
+        const brands = ["TechNexus", "LuxeLife", "UrbanEdge", "NovaCore"];
+
+        // Helper: Get deterministic brand based on product ID
+        function getProductBrand(p) {
+            for (const b of brands) {
+                if (p.name.toLowerCase().includes(b.toLowerCase())) return b;
+            }
+            return brands[p.id % brands.length];
+        }
+
+        // Helper: Get deterministic rating and review count
+        function getProductRating(p) {
+            const rating = 3.5 + ((p.id * 7) % 16) * 0.1;
+            const reviews = 5 + ((p.id * 13) % 200);
+            return { rating, reviews };
+        }
+
+        // Parse search & categoryId params from URL
+        function getUrlParams() {
             const params = new URLSearchParams(window.location.search);
             return {
                 search: params.get('search') || '',
@@ -59,58 +401,509 @@
             };
         }
 
-        async function loadCategories() {
-            try {
-                const res = await CategoriesAPI.getAll(1, 100);
-                const cats = res.data?.items || [];
-                const select = document.getElementById('category-filter');
-                cats.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.textContent = `${c.name} (${c.productCount})`;
-                    select.appendChild(opt);
-                });
-                const { categoryId } = getParams();
-                if (categoryId) select.value = categoryId;
-            } catch { }
+        // Start initialization on DOM loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Setup Header Auth and Cart Count
+            renderHeaderAuth();
+            refreshCartCount();
+
+            // Setup Search Input event keypress
+            const searchInput = document.getElementById('search-input');
+            searchInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    triggerSearch(query);
+                }
+            });
+
+            // Parse initial values
+            const params = getUrlParams();
+            if (params.search) {
+                searchInput.value = params.search;
+                updateSearchBadge(params.search);
+            }
+            selectedCategoryId = params.categoryId;
+
+            // Load Categories and Products
+            await loadCategories();
+            await loadProducts();
+
+            // Setup Sticky Header scroll effect
+            const header = document.querySelector('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 20) {
+                    header.classList.add('shadow-md');
+                } else {
+                    header.classList.remove('shadow-md');
+                }
+            });
+        });
+
+        // Trigger search by updating url and loading products
+        function triggerSearch(keyword) {
+            const url = new URL(window.location.href);
+            if (keyword) {
+                url.searchParams.set('search', keyword);
+            } else {
+                url.searchParams.delete('search');
+            }
+            window.history.pushState({}, '', url);
+            updateSearchBadge(keyword);
+            loadProducts();
         }
 
-        async function loadProducts(page = 1) {
-            currentPage = page;
-            const grid = document.getElementById('products-grid');
-            const pagEl = document.getElementById('pagination-container');
-            grid.innerHTML = '<div class="loading-state" style="grid-column:1/-1"><div class="spinner"></div></div>';
-
-            const search = document.getElementById('search-input').value.trim();
-            const categoryId = document.getElementById('category-filter').value;
-
-            try {
-                const res = await ProductsAPI.getAll(page, pageSize, search || null, categoryId || null);
-                const data = res.data;
-                const items = data?.items || [];
-                if (items.length === 0) {
-                    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div class="empty-title">Không tìm thấy sản phẩm</div><div class="empty-sub">Thử từ khóa khác hoặc xóa bộ lọc</div></div>';
-                    pagEl.innerHTML = '';
-                } else {
-                    grid.innerHTML = items.map(p => renderProductCard(p)).join('');
-                    pagEl.innerHTML = renderPagination(data.page, data.totalPages, 'loadProducts');
-                }
-            } catch {
-                grid.innerHTML = '<div class="alert alert-error" style="grid-column:1/-1">Không thể tải sản phẩm. Vui lòng thử lại.</div>';
-                pagEl.innerHTML = '';
+        function updateSearchBadge(keyword) {
+            const badge = document.getElementById('active-search-badge');
+            const disp = document.getElementById('search-keyword-display');
+            if (keyword) {
+                badge.style.display = 'inline-flex';
+                disp.textContent = keyword;
+            } else {
+                badge.style.display = 'none';
             }
         }
 
-        function searchProducts() { loadProducts(1); }
-        function filterByCategory() { loadProducts(1); }
+        function clearSearch() {
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = '';
+            triggerSearch('');
+        }
 
-        // Init
-        (async () => {
-            const { search, categoryId } = getParams();
-            if (search) document.getElementById('search-input').value = search;
-            await loadCategories();
-            loadProducts(1);
-        })();
+        // Load Categories from Database
+        async function loadCategories() {
+            try {
+                const res = await CategoriesAPI.getAll(1, 100);
+                categories = res.data?.items || [];
+                renderCategoriesSidebar();
+            } catch (e) {
+                console.error("Lỗi khi tải danh mục:", e);
+            }
+        }
+
+        // Render dynamic categories in sidebar
+        function renderCategoriesSidebar() {
+            const container = document.getElementById('categories-list');
+            if (!container) return;
+
+            // Total count item
+            const totalCount = allProducts.length;
+            const isAllActive = !selectedCategoryId;
+            
+            let html = `
+                <div onclick="selectCategory('')" class="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-all duration-200 text-xs font-semibold ${isAllActive ? 'bg-primary/10 text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'}">
+                    <span>Tất cả sản phẩm</span>
+                </div>
+            `;
+
+            categories.forEach(c => {
+                const isActive = selectedCategoryId === String(c.id);
+                html += `
+                    <div onclick="selectCategory('${c.id}')" class="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-all duration-200 text-xs font-semibold ${isActive ? 'bg-primary/10 text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'}">
+                        <span class="truncate pr-2">${c.name}</span>
+                        <span class="text-[10px] ${isActive ? 'bg-primary text-white' : 'bg-surface-container text-outline'} px-2 py-0.5 rounded-full">${c.productCount}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Handle category selection
+        function selectCategory(id) {
+            selectedCategoryId = String(id);
+            const url = new URL(window.location.href);
+            if (id) {
+                url.searchParams.set('categoryId', String(id));
+            } else {
+                url.searchParams.delete('categoryId');
+            }
+            window.history.pushState({}, '', url);
+
+            // Re-render categories layout
+            renderCategoriesSidebar();
+
+            // Fetch products matching new search/category
+            loadProducts();
+        }
+
+        // Fetch products matching the search query & category
+        async function loadProducts() {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = `
+                <div class="col-span-full flex flex-col justify-center items-center py-20">
+                    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p class="text-outline text-sm">Đang tải danh sách sản phẩm...</p>
+                </div>
+            `;
+
+            const searchInput = document.getElementById('search-input');
+            const search = searchInput ? searchInput.value.trim() : "";
+            const catId = selectedCategoryId || null;
+
+            try {
+                // Fetch up to 10,000 matches for client-side multi-dimensional filters
+                const res = await ProductsAPI.getAll(1, 10000, search || null, catId);
+                allProducts = res.data?.items || [];
+                
+                // Dynamically update maximum price in range slider
+                if (allProducts.length > 0) {
+                    const prices = allProducts.map(p => p.price);
+                    const maxPrice = Math.max(...prices);
+                    const slider = document.getElementById('price-slider');
+                    if (slider) {
+                        slider.max = maxPrice;
+                        slider.value = maxPrice;
+                        document.getElementById('slider-max-display').textContent = formatPrice(maxPrice);
+                        const priceMaxInput = document.getElementById('price-max');
+                        if (priceMaxInput) priceMaxInput.value = Math.ceil(maxPrice);
+                    }
+                }
+                
+                // Apply all filters and render product grid
+                applyFilters(true);
+                
+                // Refresh dynamic categories counts in sidebar
+                renderCategoriesSidebar();
+            } catch (e) {
+                console.error("Lỗi khi tải sản phẩm:", e);
+                grid.innerHTML = `
+                    <div class="col-span-full bg-error-container/30 border border-error/20 p-6 rounded-xl text-center text-error">
+                        <span class="material-symbols-outlined text-[36px] mb-2">error</span>
+                        <p class="font-bold">Lỗi không thể tải sản phẩm</p>
+                        <p class="text-xs mt-1">Vui lòng kiểm tra lại kết nối mạng và thử lại sau.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Star Filter selection
+        function toggleStarFilter(stars) {
+            if (selectedStarFilter === stars) {
+                selectedStarFilter = null;
+                document.getElementById(`star-filter-${stars}`)?.classList.remove('bg-primary/5', 'border-primary/20');
+            } else {
+                if (selectedStarFilter) {
+                    document.getElementById(`star-filter-${selectedStarFilter}`)?.classList.remove('bg-primary/5', 'border-primary/20');
+                }
+                selectedStarFilter = stars;
+                document.getElementById(`star-filter-${stars}`)?.classList.add('bg-primary/5', 'border-primary/20');
+            }
+            applyFilters();
+        }
+
+        // Handle price input adjustments
+        function handleMinPriceInput() {
+            const minInput = document.getElementById('price-min');
+            const minVal = parseFloat(minInput.value) || 0;
+            applyFilters();
+        }
+
+        // Handle max price input adjustments
+        function handleMaxPriceInput() {
+            const maxInput = document.getElementById('price-max');
+            const maxVal = parseFloat(maxInput.value) || 20000000;
+            const slider = document.getElementById('price-slider');
+            if (slider) {
+                slider.value = maxVal;
+            }
+            applyFilters();
+        }
+
+        function handleSliderInput() {
+            const slider = document.getElementById('price-slider');
+            const maxInput = document.getElementById('price-max');
+            if (slider && maxInput) {
+                maxInput.value = slider.value;
+            }
+            applyFilters();
+        }
+
+        // Apply Client-Side Filters & Sorting
+        function applyFilters(resetPage = false) {
+            if (resetPage) currentPage = 1;
+            
+            let temp = [...allProducts];
+
+            // 1. Filter by Category Name (Meta title sync)
+            if (selectedCategoryId) {
+                const catObj = categories.find(c => String(c.id) === selectedCategoryId);
+                document.getElementById('results-title').textContent = catObj ? catObj.name : "Sản phẩm";
+            } else {
+                document.getElementById('results-title').textContent = "Tất cả sản phẩm";
+            }
+
+            // 2. Filter by Price Range
+            const minPriceVal = parseFloat(document.getElementById('price-min').value) || 0;
+            const maxPriceVal = parseFloat(document.getElementById('price-max').value) || 999999999;
+            temp = temp.filter(p => p.price >= minPriceVal && p.price <= maxPriceVal);
+
+            // 3. Filter by Selected Brands
+            const checkedBrands = Array.from(document.querySelectorAll('.brand-checkbox:checked')).map(cb => cb.value);
+            if (checkedBrands.length > 0) {
+                temp = temp.filter(p => {
+                    const pBrand = getProductBrand(p);
+                    return checkedBrands.includes(pBrand);
+                });
+            }
+
+            // 4. Filter by Star Ratings
+            if (selectedStarFilter) {
+                temp = temp.filter(p => {
+                    const { rating } = getProductRating(p);
+                    return rating >= selectedStarFilter;
+                });
+            }
+
+            // 5. Apply Sorting
+            const sortVal = document.getElementById('sort-select').value;
+            if (sortVal === 'price-asc') {
+                temp.sort((a, b) => a.price - b.price);
+            } else if (sortVal === 'price-desc') {
+                temp.sort((a, b) => b.price - a.price);
+            } else if (sortVal === 'newest') {
+                temp.sort((a, b) => b.id - a.id);
+            } else {
+                // 'popular' sorting by deterministic review counts
+                temp.sort((a, b) => {
+                    const scoreA = getProductRating(a).reviews + a.id;
+                    const scoreB = getProductRating(b).reviews + b.id;
+                    return scoreB - scoreA;
+                });
+            }
+
+            filteredProducts = temp;
+            
+            // Render catalog title results count
+            document.getElementById('results-count').textContent = `(${filteredProducts.length} sản phẩm)`;
+
+            renderProductGrid();
+        }
+
+        // Render Dynamic Product Cards with Pagination
+        function renderProductGrid() {
+            const grid = document.getElementById('products-grid');
+            if (!grid) return;
+
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16 bg-white border border-outline-variant rounded-xl shadow-sm flex flex-col items-center justify-center">
+                        <span class="material-symbols-outlined text-[48px] text-outline mb-2 animate-bounce">search</span>
+                        <h4 class="font-bold text-on-surface text-base">Không tìm thấy sản phẩm phù hợp</h4>
+                        <p class="text-xs text-outline mt-1 px-4">Hãy thử thay đổi khoảng giá, chọn thương hiệu khác hoặc dọn dẹp các bộ lọc hiện tại.</p>
+                        <button onclick="resetFilters()" class="mt-4 px-5 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs rounded-lg transition-colors">Dọn dẹp bộ lọc</button>
+                    </div>
+                `;
+                document.getElementById('pagination-container').innerHTML = '';
+                return;
+            }
+
+            // Client side Pagination boundary
+            const totalCount = filteredProducts.length;
+            const totalPages = Math.ceil(totalCount / pageSize);
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+            const startIdx = (currentPage - 1) * pageSize;
+            const pageItems = filteredProducts.slice(startIdx, startIdx + pageSize);
+
+            // Render Product Card
+            grid.innerHTML = pageItems.map(p => renderCatalogProductCard(p)).join('');
+
+            // Render Pagination numbers
+            renderPagination(totalPages);
+        }
+
+        // Render Product HTML Card Layout
+        function renderCatalogProductCard(p) {
+            const img = p.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500';
+            const brandName = getProductBrand(p);
+            const { rating, reviews } = getProductRating(p);
+            
+            // Custom sale tag for product costing over 3M
+            const isSale = p.price > 3000000;
+            const isNew = p.id % 3 === 0;
+            
+            let originalPriceHtml = '';
+            let badgeHtml = '';
+            
+            if (isSale) {
+                const originalPrice = p.price * 1.25;
+                originalPriceHtml = `<span class="font-body-md text-xs text-outline line-through ml-2 font-normal">${formatPrice(originalPrice)}</span>`;
+                badgeHtml = `<span class="absolute top-3 left-3 bg-error text-white font-semibold text-[10px] px-2.5 py-1 rounded-lg shadow-md tracking-wider">SALE</span>`;
+            } else if (isNew) {
+                badgeHtml = `<span class="absolute top-3 left-3 bg-tertiary text-white font-semibold text-[10px] px-2.5 py-1 rounded-lg shadow-md tracking-wider">NEW</span>`;
+            }
+            
+            return `
+            <div class="bg-white rounded-xl border border-outline-variant overflow-hidden product-card-hover transition-all duration-300 flex flex-col cursor-pointer group" onclick="window.location='/product-detail.html?id=${p.id}'">
+                <div class="relative aspect-square overflow-hidden bg-surface-container-low flex items-center justify-center">
+                    <img alt="${p.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${img}"/>
+                    ${badgeHtml}
+                    <button onclick="event.stopPropagation(); toggleWishlist(${p.id}, this)" class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full material-symbols-outlined text-secondary hover:text-red-500 hover:bg-white transition-all duration-200 shadow-sm leading-none">favorite</button>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <span class="font-label-sm text-[10px] text-outline mb-1 uppercase tracking-widest font-semibold">${brandName}</span>
+                    <h3 class="font-title-lg text-sm text-on-surface mb-2 line-clamp-2 h-10 leading-snug font-bold group-hover:text-primary transition-colors">${p.name}</h3>
+                    
+                    <div class="flex items-center gap-1 mb-4">
+                        <div class="flex text-tertiary">
+                            ${Array.from({ length: 5 }, (_, i) => {
+                                const filled = i < Math.floor(rating);
+                                return `<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' ${filled ? 1 : 0};">star</span>`;
+                            }).join('')}
+                        </div>
+                        <span class="text-label-sm text-[11px] font-semibold text-on-surface-variant ml-1">${rating.toFixed(1)} (${reviews})</span>
+                    </div>
+                    
+                    <div class="flex items-baseline gap-1 mb-4 mt-auto">
+                        <span class="font-headline-md text-base text-primary font-bold">${formatPrice(p.price)}</span>
+                        ${originalPriceHtml}
+                    </div>
+                    <button onclick="event.stopPropagation(); handleAddToCartCard(${p.id})" class="mt-2 w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-xs hover:bg-primary/95 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-primary/10">
+                        <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                        Thêm vào giỏ
+                    </button>
+                </div>
+            </div>
+            `;
+        }
+
+        // Render Pagination buttons
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination-container');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button onclick="changePage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} class="w-9 h-9 flex items-center justify-center rounded-lg border border-outline-variant hover:border-primary hover:text-primary disabled:opacity-40 disabled:hover:border-outline-variant disabled:hover:text-inherit transition-all material-symbols-outlined text-sm leading-none font-bold">chevron_left</button>
+            `;
+
+            const start = Math.max(1, currentPage - 2);
+            const end = Math.min(totalPages, currentPage + 2);
+
+            for (let i = start; i <= end; i++) {
+                const isActive = i === currentPage;
+                html += `
+                    <button onclick="changePage(${i})" class="w-9 h-9 flex items-center justify-center rounded-lg font-semibold text-xs transition-all ${isActive ? 'bg-primary text-white shadow-md shadow-primary/15' : 'border border-outline-variant hover:border-primary hover:text-primary'}">${i}</button>
+                `;
+            }
+
+            html += `
+                <button onclick="changePage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} class="w-9 h-9 flex items-center justify-center rounded-lg border border-outline-variant hover:border-primary hover:text-primary disabled:opacity-40 disabled:hover:border-outline-variant disabled:hover:text-inherit transition-all material-symbols-outlined text-sm leading-none font-bold">chevron_right</button>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Page change trigger
+        function changePage(page) {
+            currentPage = page;
+            renderProductGrid();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Wishlist click handler
+        function toggleWishlist(productId, btn) {
+            const isLiked = btn.classList.contains('text-red-500');
+            if (isLiked) {
+                btn.classList.remove('text-red-500');
+                btn.style.fontVariationSettings = "'FILL' 0";
+                showToast('Đã xóa khỏi danh sách yêu thích!');
+            } else {
+                btn.classList.add('text-red-500');
+                btn.style.fontVariationSettings = "'FILL' 1";
+                showToast('Đã thêm vào danh sách yêu thích! ❤️');
+            }
+        }
+
+        // Add to cart click action on product cards
+        async function handleAddToCartCard(productId) {
+            if (!Auth.isLoggedIn()) {
+                showToast('Vui lòng đăng nhập để thêm vào giỏ hàng', 'error');
+                setTimeout(() => window.location.href = '/login.html', 1200);
+                return;
+            }
+            try {
+                await CartAPI.addItem(productId, 1);
+                await refreshCartCount();
+                showToast('Đã thêm vào giỏ hàng thành công! 🎉');
+            } catch (e) {
+                showToast(e.message || 'Lỗi khi thêm vào giỏ hàng', 'error');
+            }
+        }
+
+        // Clear all filters inside sidebar
+        function resetFilters() {
+            document.getElementById('price-min').value = '';
+            document.getElementById('price-max').value = '';
+            const slider = document.getElementById('price-slider');
+            if (slider) {
+                const prices = allProducts.map(p => p.price);
+                const maxPrice = prices.length > 0 ? Math.max(...prices) : 20000000;
+                slider.value = maxPrice;
+            }
+
+            document.querySelectorAll('.brand-checkbox').forEach(cb => cb.checked = false);
+
+            if (selectedStarFilter) {
+                document.getElementById(`star-filter-${selectedStarFilter}`)?.classList.remove('bg-primary/5', 'border-primary/20');
+                selectedStarFilter = null;
+            }
+
+            selectedCategoryId = "";
+            const url = new URL(window.location.href);
+            url.searchParams.delete('categoryId');
+            url.searchParams.delete('search');
+            window.history.pushState({}, '', url);
+
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = '';
+            updateSearchBadge('');
+
+            renderCategoriesSidebar();
+            loadProducts();
+        }
+
+        // Render Authentication layout at the header
+        function renderHeaderAuth() {
+            const authSection = document.getElementById('auth-section');
+            if (!authSection) return;
+
+            if (Auth.isLoggedIn()) {
+                const user = Auth.user;
+                const isAdmin = Auth.isAdmin();
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-3 font-body-md text-xs">
+                        ${isAdmin ? `<a href="/admin.html" class="px-2.5 py-1.5 border border-primary text-primary hover:bg-primary/5 rounded-lg font-semibold transition-colors flex items-center gap-1 shrink-0">⚙️ Bảng Quản Trị</a>` : ''}
+                        <a href="/orders.html" class="px-2.5 py-1.5 border border-emerald-500 text-emerald-500 hover:bg-emerald-500/5 rounded-lg font-semibold transition-colors flex items-center gap-1 shrink-0" style="border-color:#10b981; color:#10b981;">📦 Đơn hàng</a>
+                        <span class="text-secondary font-semibold hidden lg:inline-block truncate max-w-[80px]" title="${user.fullName}">👋 ${user.fullName.split(' ').pop()}</span>
+                        <button onclick="AuthAPI.logout()" class="text-xs text-outline hover:text-primary transition-colors font-medium shrink-0">Đăng xuất</button>
+                    </div>
+                `;
+            } else {
+                authSection.innerHTML = `
+                    <a href="/login.html" class="px-2.5 py-1.5 border border-outline-variant text-on-surface hover:bg-surface-container-low rounded-lg font-semibold transition-colors text-xs font-medium shrink-0">Đăng nhập</a>
+                    <a href="/register.html" class="px-2.5 py-1.5 bg-primary text-white hover:bg-primary/95 rounded-lg font-semibold transition-colors text-xs shrink-0">Đăng ký</a>
+                `;
+            }
+        }
+
+        // Dynamic footer newsletter subscription toast trigger
+        function subscribeNewsletter() {
+            const emailInput = document.getElementById('footer-newsletter-input');
+            const email = emailInput?.value.trim();
+            if (!email) {
+                showToast('Vui lòng nhập email của bạn', 'error');
+                return;
+            }
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showToast('Định dạng email không hợp lệ', 'error');
+                return;
+            }
+            showToast('Đăng ký nhận tin khuyến mãi thành công! 🎉');
+            if (emailInput) emailInput.value = '';
+        }
     </script>
 </body>
 
