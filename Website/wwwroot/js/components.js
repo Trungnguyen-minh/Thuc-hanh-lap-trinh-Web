@@ -2,6 +2,7 @@
 function renderNavbar(activePage = '') {
     const user = Auth.user;
     const cartCount = getCartCount();
+    const isAdmin = Auth.isLoggedIn() && Auth.isAdmin();
     return `
   <nav class="navbar">
     <div class="navbar-inner">
@@ -17,6 +18,7 @@ function renderNavbar(activePage = '') {
         </a>
         ${user ? `
           <div class="nav-user">
+            ${isAdmin ? `<a href="/admin.html" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; margin-right: 8px; border-color: var(--accent); color: var(--accent);">⚙️ Bảng Quản Trị</a>` : ''}
             <span class="username" title="${user.fullName}">👋 ${user.fullName}</span>
             <button onclick="AuthAPI.logout()" class="btn-logout">Đăng xuất</button>
           </div>

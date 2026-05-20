@@ -1,4 +1,4 @@
-﻿namespace Website.Services
+namespace Website.Services
 {
     using Microsoft.EntityFrameworkCore;
     using Website.Data;
@@ -103,14 +103,6 @@
 
         private ProductResponseDto MapToDto(Product p)
         {
-            string? fullImageUrl = null;
-            if (!string.IsNullOrEmpty(p.ImageUrl))
-            {
-                var req = _httpContextAccessor.HttpContext?.Request;
-                if (req is not null)
-                    fullImageUrl = $"{req.Scheme}://{req.Host}{p.ImageUrl}";
-            }
-
             return new ProductResponseDto
             {
                 Id = p.Id,
@@ -119,7 +111,7 @@
                 Price = p.Price,
                 Stock = p.Stock,
                 ImagePath = p.ImageUrl,
-                ImageUrl = fullImageUrl,
+                ImageUrl = p.ImageUrl,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.Name ?? string.Empty
             };

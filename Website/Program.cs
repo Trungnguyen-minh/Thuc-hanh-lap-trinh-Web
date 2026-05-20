@@ -6,6 +6,7 @@ using System.Text;
 using Website.Data;
 using Website.Models;
 using Website.Services;
+using Website.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 // ─── DI ───────────────────────────────────────────────────────
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -94,20 +99,43 @@ using (var scope = app.Services.CreateScope())
         if (!await roleManager.RoleExistsAsync("User"))
             await roleManager.CreateAsync(new IdentityRole("User"));
 
-        // 2. Cập nhật quyền cho các tài khoản hiện có
+        // 2. Tạo tài khoản test admin cố định
+        var testAdminEmail = "testadmin_image@shopvn.com";
+        var testAdminUser = await userManager.FindByEmailAsync(testAdminEmail);
+        if (testAdminUser != null)
+        {
+            await userManager.DeleteAsync(testAdminUser);
+        }
+        testAdminUser = new ApplicationUser
+        {
+            UserName = testAdminEmail,
+            Email = testAdminEmail,
+            FullName = "Test Admin Image",
+            EmailConfirmed = true
+        };
+        var createAdminResult = await userManager.CreateAsync(testAdminUser, "Password123!");
+        if (createAdminResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(testAdminUser, "Admin");
+            Console.WriteLine($"[Seeder] Created testadmin_image@shopvn.com with Admin role.");
+        }
+        else
+        {
+            Console.WriteLine($"[Seeder] Failed to create testadmin_image: {string.Join(", ", createAdminResult.Errors.Select(e => e.Description))}");
+        }
+
+        // 3. Cập nhật quyền cho các tài khoản hiện có
         var users = await userManager.Users.ToListAsync();
         if (users.Any())
         {
             var admins = await userManager.GetUsersInRoleAsync("Admin");
             if (!admins.Any())
             {
-                // Nếu chưa có ai là Admin, gán quyền Admin cho tài khoản đầu tiên
                 var firstUser = users.First();
                 await userManager.AddToRoleAsync(firstUser, "Admin");
                 Console.WriteLine($"[Seeder] Assigned 'Admin' role to the first user: {firstUser.Email}");
             }
 
-            // Gán quyền 'User' cho tất cả tài khoản còn lại nếu họ chưa có quyền gì
             foreach (var u in users)
             {
                 var roles = await userManager.GetRolesAsync(u);

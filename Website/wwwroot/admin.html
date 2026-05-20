@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quản trị hệ thống ShopVN">
+    <title>⚙️ Quản trị hệ thống - ShopVN</title>
+    <link rel="stylesheet" href="/css/style.css?v=1.0.2">
+    <script src="/js/api.js?v=1.0.2"></script>
+    <script>
+        // Bảo vệ route ngay lập tức trước khi render DOM để tránh nhấp nháy UI
+        if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
+            window.location.replace('/login.html?redirect=/admin.html');
+        }
+    </script>
+</head>
+
+<body>
+    <div id="navbar-container" data-active="admin"></div>
+
+    <div class="admin-container">
+        <!-- SIDEBAR MENU -->
+        <aside class="admin-sidebar">
+            <div style="font-weight: 800; font-size: 1.15rem; margin-bottom: 24px; padding-left: 18px; color: var(--accent);">
+                ⚙️ HỆ THỐNG
+            </div>
+            <div class="admin-menu">
+                <button class="admin-menu-btn active" id="tab-btn-overview" onclick="switchTab('overview')">📊 Tổng quan</button>
+                <button class="admin-menu-btn" id="tab-btn-products" onclick="switchTab('products')">📦 Sản phẩm</button>
+                <button class="admin-menu-btn" id="tab-btn-categories" onclick="switchTab('categories')">🏷️ Danh mục</button>
+                <button class="admin-menu-btn" id="tab-btn-users" onclick="switchTab('users')">👥 Người dùng</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="admin-content">
+            <!-- 📊 TỔNG QUAN -->
+            <section class="admin-tab-content active" id="tab-overview">
+                <h1 style="font-size:2rem; font-weight:800; margin-bottom:24px">Tổng quan hệ thống</h1>
+                
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-info">
+                            <span class="stat-title">Sản phẩm</span>
+                            <span class="stat-num" id="stat-products">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-info">
+                            <span class="stat-title">Danh mục</span>
+                            <span class="stat-num" id="stat-categories">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-title">Thành viên</span>
+                            <span class="stat-num" id="stat-users">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass" style="padding: 32px; border-radius: var(--radius-lg);">
+                    <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 16px; color: var(--text);">Xin chào, Admin!</h2>
+                    <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 16px;">
+                        Chào mừng bạn quay trở lại với bảng điều khiển quản trị của <strong>ShopVN</strong>. 
+                        Tại đây, bạn có toàn quyền quản trị cơ sở dữ liệu hệ thống:
+                    </p>
+                    <ul style="color: var(--text-muted); padding-left: 20px; line-height: 2; margin-bottom: 16px;">
+                        <li><strong>Quản lý sản phẩm:</strong> Thêm, chỉnh sửa thông tin chi tiết sản phẩm, cập nhật số lượng tồn kho và tải hình ảnh lên.</li>
+                        <li><strong>Quản lý danh mục:</strong> Tổ chức cơ cấu các nhóm sản phẩm dễ dàng, kiểm tra số lượng sản phẩm con thuộc danh mục.</li>
+                        <li><strong>Quản trị thành viên:</strong> Xem danh sách tài khoản đã đăng ký và phân quyền nâng cấp tài khoản lên Admin một cách linh hoạt.</li>
+                    </ul>
+                    <p style="color: var(--text-muted);">
+                        Sử dụng thanh Menu bên trái để chuyển đổi nhanh các khu vực quản lý khác nhau.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 📦 QUẢN LÝ SẢN PHẨM -->
+            <section class="admin-tab-content" id="tab-products">
+                <div class="admin-actions-bar">
+                    <h1 style="font-size:2rem; font-weight:800">Quản lý Sản phẩm</h1>
+                    <button class="btn btn-primary" onclick="openProductModal()">➕ Thêm sản phẩm</button>
+                </div>
+
+                <!-- BỘ LỌC TÌM KIẾM -->
+                <div style="display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap">
+                    <div class="search-bar" style="flex:1; min-width:280px">
+                        <input type="text" id="prod-search" placeholder="Tìm sản phẩm theo tên..." onkeydown="if(event.key==='Enter')loadProducts(1)">
+                        <button class="search-btn" onclick="loadProducts(1)">🔍</button>
+                    </div>
+                    <select id="prod-category-filter" class="form-input" style="min-width:180px; cursor:pointer" onchange="loadProducts(1)">
+                        <option value="">Tất cả danh mục</option>
+                    </select>
+                </div>
+
+                <!-- BẢNG SẢN PHẨM -->
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px">ID</th>
+                                <th style="width: 80px">Ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th style="width: 140px">Giá bán</th>
+                                <th style="width: 110px">Tồn kho</th>
+                                <th>Danh mục</th>
+                                <th style="width: 150px">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body">
+                            <!-- JS Inject -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PHÂN TRANG -->
+                <div style="margin-top:24px" id="prod-pagination"></div>
+            </section>
+
+            <!-- 🏷️ QUẢN LÝ DANH MỤC -->
+            <section class="admin-tab-content" id="tab-categories">
+                <div class="admin-actions-bar">
+                    <h1 style="font-size:2rem; font-weight:800">Quản lý Danh mục</h1>
+                    <button class="btn btn-primary" onclick="openCategoryModal()">➕ Thêm danh mục</button>
+                </div>
+
+                <!-- BẢNG DANH MỤC -->
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px">ID</th>
+                                <th>Tên danh mục</th>
+                                <th>Mô tả</th>
+                                <th style="width: 140px">Số sản phẩm</th>
+                                <th style="width: 150px">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table-body">
+                            <!-- JS Inject -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 👥 QUẢN LÝ NGƯỜI DÙNG -->
+            <section class="admin-tab-content" id="tab-users">
+                <div class="admin-actions-bar">
+                    <h1 style="font-size:2rem; font-weight:800">Quản lý Người dùng</h1>
+                </div>
+
+                <!-- BẢNG NGƯỜI DÙNG -->
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Họ và tên</th>
+                                <th>Email</th>
+                                <th style="width: 160px">Vai trò</th>
+                                <th style="width: 200px">Thay đổi vai trò</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- JS Inject -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 📦 MODAL THÊM/SỬA SẢN PHẨM -->
+    <div class="modal-backdrop" id="product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="product-modal-title">Thêm sản phẩm mới</h3>
+                <button class="modal-close" onclick="closeProductModal()">✕</button>
+            </div>
+            <form id="product-form" onsubmit="saveProduct(event)" class="modal-form">
+                <input type="hidden" id="prod-id">
+
+                <div class="form-group">
+                    <label class="form-label" for="prod-name">Tên sản phẩm *</label>
+                    <input type="text" id="prod-name" class="form-input" placeholder="Nhập tên sản phẩm..." required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label" for="prod-price">Giá bán (VND) *</label>
+                        <input type="number" id="prod-price" class="form-input" placeholder="Nhập giá..." min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="prod-stock">Số lượng tồn kho *</label>
+                        <input type="number" id="prod-stock" class="form-input" placeholder="Số lượng..." min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="prod-category">Danh mục *</label>
+                    <select id="prod-category" class="form-input" required>
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="prod-desc">Mô tả sản phẩm</label>
+                    <textarea id="prod-desc" class="form-input" placeholder="Mô tả chi tiết sản phẩm..." rows="3" style="resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hình ảnh sản phẩm</label>
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <div class="img-preview-box" id="img-preview-container">
+                            <span style="font-size: 2rem; color: var(--text-muted);">📦</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="file" id="prod-image-file" class="form-input" accept="image/*" onchange="previewImage(this)" style="width: 100%">
+                            <span class="form-hint" style="margin-top: 4px; display: block;">Chấp nhận file ảnh (.png, .jpg, .jpeg, .webp)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeProductModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-prod">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🏷️ MODAL THÊM/SỬA DANH MỤC -->
+    <div class="modal-backdrop" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="category-modal-title">Thêm danh mục mới</h3>
+                <button class="modal-close" onclick="closeCategoryModal()">✕</button>
+            </div>
+            <form id="category-form" onsubmit="saveCategory(event)" class="modal-form">
+                <input type="hidden" id="cat-id">
+
+                <div class="form-group">
+                    <label class="form-label" for="cat-name">Tên danh mục *</label>
+                    <input type="text" id="cat-name" class="form-input" placeholder="Nhập tên danh mục..." required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="cat-desc">Mô tả danh mục</label>
+                    <textarea id="cat-desc" class="form-input" placeholder="Mô tả ngắn về danh mục..." rows="3" style="resize: vertical;"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeCategoryModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-cat">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="/js/components.js?v=1.0.2"></script>
+    <script>
+        // ── TAB SWITCHING ─────────────────────────────────────────────
+        function switchTab(tabId) {
+            document.querySelectorAll('.admin-menu-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            if (activeTab) activeTab.classList.add('active');
+
+            // Kích hoạt load dữ liệu tương ứng
+            if (tabId === 'overview') loadOverviewStats();
+            else if (tabId === 'products') loadProducts(1);
+            else if (tabId === 'categories') loadCategoriesTable();
+            else if (tabId === 'users') loadUsersTable();
+        }
+
+        // ── OVERVIEW TABS & COUNTS ───────────────────────────────────
+        async function loadOverviewStats() {
+            try {
+                const prodRes = await ProductsAPI.getAll(1, 1);
+                const catRes = await CategoriesAPI.getAll(1, 100);
+                const userRes = await AuthAPI.getAllUsers();
+
+                document.getElementById('stat-products').textContent = prodRes.data?.totalCount ?? 0;
+                document.getElementById('stat-categories').textContent = catRes.data?.totalCount ?? 0;
+                document.getElementById('stat-users').textContent = userRes.data?.length ?? 0;
+            } catch (e) {
+                console.error("Lỗi khi load thống kê tổng quan", e);
+            }
+        }
+
+        // ── PRODUCTS CRUDS ───────────────────────────────────────────
+        let currentProductsPage = 1;
+        
+        async function loadCategoryDropdowns() {
+            try {
+                const res = await CategoriesAPI.getAll(1, 100);
+                const categories = res.data?.items || [];
+                
+                // Form select in modal
+                const modalSelect = document.getElementById('prod-category');
+                // Filter select in table action bar
+                const filterSelect = document.getElementById('prod-category-filter');
+                
+                // Reset select options (keep first defaults)
+                modalSelect.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+                filterSelect.innerHTML = '<option value="">Tất cả danh mục</option>';
+                
+                categories.forEach(c => {
+                    const opt1 = document.createElement('option');
+                    opt1.value = c.id;
+                    opt1.textContent = c.name;
+                    modalSelect.appendChild(opt1);
+                    
+                    const opt2 = document.createElement('option');
+                    opt2.value = c.id;
+                    opt2.textContent = `${c.name} (${c.productCount})`;
+                    filterSelect.appendChild(opt2);
+                });
+            } catch (e) {
+                showToast("Lỗi tải danh mục sản phẩm", "error");
+            }
+        }
+
+        async function loadProducts(page = 1) {
+            currentProductsPage = page;
+            const tableBody = document.getElementById('products-table-body');
+            const pagEl = document.getElementById('prod-pagination');
+            tableBody.innerHTML = `<tr><td colspan="7" class="loading-state"><div class="spinner"></div></td></tr>`;
+
+            const search = document.getElementById('prod-search').value.trim();
+            const categoryId = document.getElementById('prod-category-filter').value;
+
+            try {
+                const res = await ProductsAPI.getAll(page, 10, search || null, categoryId || null);
+                const data = res.data;
+                const items = data?.items || [];
+                
+                if (items.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px 0;">Không tìm thấy sản phẩm nào.</td></tr>`;
+                    pagEl.innerHTML = '';
+                    return;
+                }
+
+                tableBody.innerHTML = items.map(p => `
+                    <tr>
+                        <td><strong>#${p.id}</strong></td>
+                        <td>
+                            ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="table-img">` : `<div class="table-img" style="display:flex;align-items:center;justify-content:center;background:#1a1d2a;font-size:1.25rem;">📦</div>`}
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text);">${p.name}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;" title="${p.description || ''}">${p.description || 'Không có mô tả'}</div>
+                        </td>
+                        <td><span style="font-weight: 700; color: var(--accent);">${formatPrice(p.price)}</span></td>
+                        <td>
+                            <span class="tag ${p.stock > 0 ? 'tag-success' : 'tag-accent'}" style="background:${p.stock > 0 ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)'}; color:${p.stock > 0 ? '#86efac' : '#fca5a5'}; padding:2px 8px; border:none">
+                                ${p.stock}
+                            </span>
+                        </td>
+                        <td><span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">${p.categoryName || '-'}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline" onclick="editProduct(${p.id})">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                pagEl.innerHTML = renderPagination(data.page, data.totalPages, 'loadProducts');
+            } catch (e) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="alert alert-error" style="text-align:center">Lỗi khi tải dữ liệu sản phẩm.</td></tr>`;
+                pagEl.innerHTML = '';
+            }
+        }
+
+        // Image Selection Preview
+        function previewImage(input) {
+            const container = document.getElementById('img-preview-container');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    container.innerHTML = `<img src="${e.target.result}" alt="Preview image">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                container.innerHTML = `<span style="font-size: 2rem; color: var(--text-muted);">📦</span>`;
+            }
+        }
+
+        function openProductModal() {
+            document.getElementById('product-modal-title').textContent = "Thêm sản phẩm mới";
+            document.getElementById('product-form').reset();
+            document.getElementById('prod-id').value = "";
+            document.getElementById('img-preview-container').innerHTML = `<span style="font-size: 2rem; color: var(--text-muted);">📦</span>`;
+            document.getElementById('product-modal').classList.add('active');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.remove('active');
+        }
+
+        async function editProduct(id) {
+            try {
+                const res = await ProductsAPI.getById(id);
+                const p = res.data;
+                if (!p) throw new Error("Không có dữ liệu");
+
+                document.getElementById('product-modal-title').textContent = "Chỉnh sửa sản phẩm";
+                document.getElementById('prod-id').value = p.id;
+                document.getElementById('prod-name').value = p.name;
+                document.getElementById('prod-price').value = p.price;
+                document.getElementById('prod-stock').value = p.stock;
+                document.getElementById('prod-category').value = p.categoryId || "";
+                document.getElementById('prod-desc').value = p.description || "";
+                
+                const preview = document.getElementById('img-preview-container');
+                if (p.imageUrl) {
+                    preview.innerHTML = `<img src="${p.imageUrl}" alt="${p.name}">`;
+                } else {
+                    preview.innerHTML = `<span style="font-size: 2rem; color: var(--text-muted);">📦</span>`;
+                }
+
+                document.getElementById('product-modal').classList.add('active');
+            } catch (e) {
+                showToast("Lỗi khi tải thông tin sản phẩm", "error");
+            }
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const saveBtn = document.getElementById('btn-save-prod');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = "Đang lưu...";
+            saveBtn.disabled = true;
+
+            const id = document.getElementById('prod-id').value;
+            const name = document.getElementById('prod-name').value.trim();
+            const price = parseFloat(document.getElementById('prod-price').value);
+            const stock = parseInt(document.getElementById('prod-stock').value);
+            const categoryId = parseInt(document.getElementById('prod-category').value);
+            const description = document.getElementById('prod-desc').value.trim();
+            const fileInput = document.getElementById('prod-image-file');
+
+            const formData = new FormData();
+            formData.append('Name', name);
+            formData.append('Price', price);
+            formData.append('Stock', stock);
+            formData.append('CategoryId', categoryId);
+            formData.append('Description', description);
+            
+            if (fileInput.files && fileInput.files[0]) {
+                formData.append('Image', fileInput.files[0]);
+            }
+
+            try {
+                if (id) {
+                    // Update
+                    await ProductsAPI.update(id, formData);
+                    showToast("Cập nhật sản phẩm thành công!");
+                } else {
+                    // Create
+                    await ProductsAPI.create(formData);
+                    showToast("Thêm mới sản phẩm thành công!");
+                }
+                closeProductModal();
+                loadProducts(id ? currentProductsPage : 1);
+                loadOverviewStats(); // Update overview numbers
+            } catch (e) {
+                showToast(e.message || "Lỗi khi lưu sản phẩm", "error");
+            } finally {
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
+            }
+        }
+
+        async function deleteProduct(id, name) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${name}" không?`)) return;
+            try {
+                await ProductsAPI.delete(id);
+                showToast("Đã xóa sản phẩm thành công");
+                loadProducts(currentProductsPage);
+                loadOverviewStats(); // Update overview numbers
+            } catch (e) {
+                showToast(e.message || "Lỗi khi xóa sản phẩm", "error");
+            }
+        }
+
+        // ── CATEGORIES CRUD ──────────────────────────────────────────
+        async function loadCategoriesTable() {
+            const tableBody = document.getElementById('categories-table-body');
+            tableBody.innerHTML = `<tr><td colspan="5" class="loading-state"><div class="spinner"></div></td></tr>`;
+
+            try {
+                const res = await CategoriesAPI.getAll(1, 100);
+                const categories = res.data?.items || [];
+
+                if (categories.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px 0;">Không tìm thấy danh mục nào.</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = categories.map(c => `
+                    <tr>
+                        <td><strong>#${c.id}</strong></td>
+                        <td><div style="font-weight: 600; color: var(--text);">${c.name}</div></td>
+                        <td><span style="color: var(--text-muted); font-size: 0.85rem;">${c.description || 'Không có mô tả'}</span></td>
+                        <td>
+                            <span class="tag tag-accent" style="font-weight:700">
+                                ${c.productCount} sản phẩm
+                            </span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline" onclick="editCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}', '${(c.description || '').replace(/'/g, "\\'")}')">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}', ${c.productCount})">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Đồng bộ dropdown lọc danh mục ở bên tab sản phẩm
+                loadCategoryDropdowns();
+            } catch (e) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="alert alert-error" style="text-align:center">Lỗi khi tải dữ liệu danh mục.</td></tr>`;
+            }
+        }
+
+        function openCategoryModal() {
+            document.getElementById('category-modal-title').textContent = "Thêm danh mục mới";
+            document.getElementById('category-form').reset();
+            document.getElementById('cat-id').value = "";
+            document.getElementById('category-modal').classList.add('active');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('category-modal').classList.remove('active');
+        }
+
+        function editCategory(id, name, desc) {
+            document.getElementById('category-modal-title').textContent = "Chỉnh sửa danh mục";
+            document.getElementById('cat-id').value = id;
+            document.getElementById('cat-name').value = name;
+            document.getElementById('cat-desc').value = desc === 'null' ? '' : desc;
+            document.getElementById('category-modal').classList.add('active');
+        }
+
+        async function saveCategory(event) {
+            event.preventDefault();
+            const saveBtn = document.getElementById('btn-save-cat');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = "Đang lưu...";
+            saveBtn.disabled = true;
+
+            const id = document.getElementById('cat-id').value;
+            const name = document.getElementById('cat-name').value.trim();
+            const description = document.getElementById('cat-desc').value.trim();
+
+            try {
+                if (id) {
+                    await CategoriesAPI.update(id, { name, description });
+                    showToast("Cập nhật danh mục thành công!");
+                } else {
+                    await CategoriesAPI.create({ name, description });
+                    showToast("Thêm danh mục thành công!");
+                }
+                closeCategoryModal();
+                loadCategoriesTable();
+                loadOverviewStats(); // Update overview numbers
+            } catch (e) {
+                showToast(e.message || "Lỗi khi lưu danh mục", "error");
+            } finally {
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
+            }
+        }
+
+        async function deleteCategory(id, name, count) {
+            if (count > 0) {
+                alert(`Không thể xóa danh mục "${name}" vì có chứa ${count} sản phẩm con. Vui lòng chuyển các sản phẩm sang danh mục khác trước.`);
+                return;
+            }
+            if (!confirm(`Bạn có chắc chắn muốn xóa danh mục "${name}" không?`)) return;
+            
+            try {
+                await CategoriesAPI.delete(id);
+                showToast("Đã xóa danh mục thành công!");
+                loadCategoriesTable();
+                loadOverviewStats(); // Update overview numbers
+            } catch (e) {
+                showToast(e.message || "Lỗi khi xóa danh mục", "error");
+            }
+        }
+
+        // ── USERS & ROLES ────────────────────────────────────────────
+        async function loadUsersTable() {
+            const tableBody = document.getElementById('users-table-body');
+            tableBody.innerHTML = `<tr><td colspan="4" class="loading-state"><div class="spinner"></div></td></tr>`;
+
+            try {
+                const res = await AuthAPI.getAllUsers();
+                const users = res.data || [];
+
+                if (users.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 32px 0;">Không tìm thấy người dùng nào.</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = users.map(u => {
+                    const isAdmin = u.roles.includes('Admin');
+                    return `
+                        <tr>
+                            <td><div style="font-weight: 600; color: var(--text);">${u.fullName}</div></td>
+                            <td><span style="color: var(--text-muted); font-size: 0.9rem;">${u.email}</span></td>
+                            <td>
+                                <span class="tag status-badge ${isAdmin ? 'status-confirmed' : 'status-reserved'}">
+                                    ${isAdmin ? '⚙️ Admin' : '👤 User'}
+                                </span>
+                            </td>
+                            <td>
+                                <select class="role-select" onchange="changeUserRole('${u.email}', this.value)">
+                                    <option value="User" ${!isAdmin ? 'selected' : ''}>User (Khách hàng)</option>
+                                    <option value="Admin" ${isAdmin ? 'selected' : ''}>Admin (Quản trị)</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="alert alert-error" style="text-align:center">Lỗi khi tải danh sách người dùng.</td></tr>`;
+            }
+        }
+
+        async function changeUserRole(email, newRole) {
+            const selfUser = Auth.user;
+            if (email === selfUser.email && newRole !== 'Admin') {
+                const confirmSelf = confirm("CẢNH BÁO: Bạn đang hạ cấp quyền của chính mình. Nếu làm vậy, bạn sẽ mất quyền truy cập trang quản trị này ngay lập tức. Bạn có chắc chắn không?");
+                if (!confirmSelf) {
+                    loadUsersTable(); // Revert select value in UI
+                    return;
+                }
+            }
+
+            try {
+                await AuthAPI.assignRole(email, newRole);
+                showToast(`Đã đổi vai trò thành công cho ${email}!`);
+                
+                // Nếu tự hạ cấp mình, logout hoặc redirect
+                if (email === selfUser.email && newRole !== 'Admin') {
+                    showToast("Bạn đã tự hạ cấp quyền, hệ thống tự động tải lại...", "info");
+                    setTimeout(() => window.location.href = '/', 1500);
+                } else {
+                    loadUsersTable();
+                }
+            } catch (e) {
+                showToast(e.message || "Lỗi thay đổi vai trò", "error");
+                loadUsersTable(); // Revert
+            }
+        }
+
+        // ── INIT ON LOAD ─────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOverviewStats();
+            loadCategoryDropdowns();
+        });
+    </script>
+</body>
+
+</html>

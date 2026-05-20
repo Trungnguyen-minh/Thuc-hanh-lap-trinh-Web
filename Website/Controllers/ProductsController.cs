@@ -1,5 +1,6 @@
-﻿namespace Website.Controllers
+namespace Website.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using Website.Models;
@@ -44,6 +45,7 @@
             return Ok(ApiResponse<ProductResponseDto>.Ok(product));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] ProductCreateDto dto)
@@ -63,6 +65,7 @@
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Update(int id, [FromForm] ProductUpdateDto dto)
@@ -84,6 +87,7 @@
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

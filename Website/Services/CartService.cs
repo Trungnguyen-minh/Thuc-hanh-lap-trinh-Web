@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Website.Data;
 using Website.Dtos;
 using Website.Models;
@@ -108,20 +108,14 @@ namespace Website.Services
 
         private CartResponseDto MapToDto(Cart cart)
         {
-            var req = _httpContextAccessor.HttpContext?.Request;
-
             var items = cart.Items.Select(i =>
             {
-                string? fullImageUrl = null;
-                if (!string.IsNullOrEmpty(i.Product?.ImageUrl) && req is not null)
-                    fullImageUrl = $"{req.Scheme}://{req.Host}{i.Product.ImageUrl}";
-
                 return new CartItemResponseDto
                 {
                     CartItemId = i.Id,
                     ProductId = i.ProductId,
                     ProductName = i.Product?.Name ?? string.Empty,
-                    ImageUrl = fullImageUrl,
+                    ImageUrl = i.Product?.ImageUrl,
                     UnitPrice = i.Product?.Price ?? 0,
                     Quantity = i.Quantity,
                     SubTotal = (i.Product?.Price ?? 0) * i.Quantity

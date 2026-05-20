@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Website.Dtos;
 using Website.Services;
@@ -34,6 +35,7 @@ namespace Website.Controllers
             return Ok(ApiResponse<CategoryResponseDto>.Ok(category));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CategoryCreateDto dto)
         {
@@ -44,6 +46,7 @@ namespace Website.Controllers
                 ApiResponse<CategoryResponseDto>.Ok(createdCategory, "Category created successfully"));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryUpdateDto dto)
         {
@@ -59,6 +62,7 @@ namespace Website.Controllers
             return Ok(ApiResponse<CategoryResponseDto>.Ok(updatedCategory, "Category updated successfully"));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -19,7 +19,7 @@
       <div class="hero-badge">🔥 Khuyến mãi lớn mùa hè 2026</div>
       <h1>Mua sắm thông minh<br>với <span class="text-gradient">ShopVN</span></h1>
       <p>Khám phá hàng nghìn sản phẩm chất lượng với giá tốt nhất. Giao hàng nhanh chóng, đổi trả dễ dàng.</p>
-      <div class="hero-actions">
+      <div class="hero-actions" id="hero-actions-container">
         <a href="/products.html" class="btn btn-primary btn-lg">Khám phá ngay →</a>
         <a href="/register.html" class="btn btn-outline btn-lg">Tạo tài khoản</a>
       </div>
@@ -74,6 +74,22 @@
     const catIcons = ['📱', '💻', '🎧', '👕', '📷', '🎮', '🏠', '🎒', '⌚', '🖥️', '📚', '🍜'];
 
     async function loadHome() {
+      // Update Hero Actions based on Auth
+      const heroActions = document.getElementById('hero-actions-container');
+      if (heroActions && Auth.isLoggedIn()) {
+        if (Auth.isAdmin()) {
+          heroActions.innerHTML = `
+            <a href="/products.html" class="btn btn-primary btn-lg">Khám phá ngay →</a>
+            <a href="/admin.html" class="btn btn-outline btn-lg" style="border-color: var(--accent); color: var(--accent);">⚙️ Bảng Quản Trị</a>
+          `;
+        } else {
+          heroActions.innerHTML = `
+            <a href="/products.html" class="btn btn-primary btn-lg">Khám phá ngay →</a>
+            <a href="/cart.html" class="btn btn-outline btn-lg">🛒 Giỏ hàng của bạn</a>
+          `;
+        }
+      }
+
       // Load categories
       try {
         const catRes = await CategoriesAPI.getAll(1, 12);

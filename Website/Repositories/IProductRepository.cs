@@ -52,6 +52,7 @@ namespace Website.Repositories
         {
             _db.Products.Add(product);
             await _db.SaveChangesAsync();
+            await _db.Entry(product).Reference(p => p.Category).LoadAsync();
             return product;
         }
 
@@ -59,6 +60,7 @@ namespace Website.Repositories
         {
             _db.Products.Update(product);
             await _db.SaveChangesAsync();
+            await _db.Entry(product).Reference(p => p.Category).LoadAsync();
         }
 
         public async Task DeleteAsync(Product product)

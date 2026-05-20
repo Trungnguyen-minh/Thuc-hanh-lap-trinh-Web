@@ -2,6 +2,20 @@
 const API_BASE = '';   // same origin — served by ASP.NET Core
 
 // ── AUTH STORAGE ───────────────────────────────────────────────
+// ── AUTH STORAGE ───────────────────────────────────────────────
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch {
+        return null;
+    }
+}
+
 const Auth = {
     get token() { return localStorage.getItem('shopvn_token'); },
     get user() { try { return JSON.parse(localStorage.getItem('shopvn_user') || 'null'); } catch { return null; } },
@@ -13,12 +27,23 @@ const Auth = {
         localStorage.removeItem('shopvn_token');
         localStorage.removeItem('shopvn_user');
     },
-    isLoggedIn() { return !!this.token; }
+    isLoggedIn() { return !!this.token; },
+    isAdmin() {
+        if (!this.token) return false;
+        const payload = parseJwt(this.token);
+        if (!payload) return false;
+        const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.role || payload.Role || payload.roles;
+        return role === "Admin" || (Array.isArray(role) && role.includes("Admin"));
+    }
 };
 
 // ── BASE FETCH ─────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
-    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    const isFormData = options.body instanceof FormData;
+    const headers = { ...(options.headers || {}) };
+    if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+    }
     if (Auth.token) headers['Authorization'] = `Bearer ${Auth.token}`;
     const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
     const data = await res.json().catch(() => null);
@@ -53,7 +78,16 @@ const AuthAPI = {
         Auth.set(res.data.token, { email: res.data.email, fullName: res.data.fullName, expiry: res.data.expiry });
         return res.data;
     },
-    logout() { Auth.clear(); window.location.href = '/login.html'; }
+    logout() { Auth.clear(); window.location.href = '/login.html'; },
+    async getAllUsers() {
+        return apiFetch('/api/auth/users');
+    },
+    async assignRole(email, role) {
+        return apiFetch('/api/auth/assign-role', {
+            method: 'POST',
+            body: JSON.stringify({ email, role })
+        });
+    }
 };
 
 // ── PRODUCTS ────────────────────────────────────────────────────
@@ -64,13 +98,47 @@ const ProductsAPI = {
         if (categoryId) q.set('categoryId', categoryId);
         return apiFetch(`/api/products?${q}`);
     },
-    getById(id) { return apiFetch(`/api/products/${id}`); }
+    getById(id) { return apiFetch(`/api/products/${id}`); },
+    create(formData) {
+        return apiFetch('/api/products', {
+            method: 'POST',
+            body: formData
+        });
+    },
+    update(id, formData) {
+        return apiFetch(`/api/products/${id}`, {
+            method: 'PUT',
+            body: formData
+        });
+    },
+    delete(id) {
+        return apiFetch(`/api/products/${id}`, {
+            method: 'DELETE'
+        });
+    }
 };
 
 // ── CATEGORIES ──────────────────────────────────────────────────
 const CategoriesAPI = {
     getAll(page = 1, pageSize = 100) {
         return apiFetch(`/api/categories?page=${page}&pageSize=${pageSize}`);
+    },
+    create(dto) {
+        return apiFetch('/api/categories', {
+            method: 'POST',
+            body: JSON.stringify(dto)
+        });
+    },
+    update(id, dto) {
+        return apiFetch(`/api/categories/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(dto)
+        });
+    },
+    delete(id) {
+        return apiFetch(`/api/categories/${id}`, {
+            method: 'DELETE'
+        });
     }
 };
 
