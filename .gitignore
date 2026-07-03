@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Personal Data & Sensitive Credentials (Secrets, Uploads, Environment Files)
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+*.env
+.env*
+*secret*.json
+*credentials*.json
+appsettings.*.local.json

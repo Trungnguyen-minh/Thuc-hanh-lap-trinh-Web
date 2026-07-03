@@ -48,6 +48,11 @@ async function apiFetch(path, options = {}) {
     const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
     const data = await res.json().catch(() => null);
     if (!res.ok) {
+        if (res.status === 401) {
+            Auth.clear();
+            const msg = data?.message || 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại!';
+            throw new ApiError(msg, 401, data);
+        }
         const msg = data?.message || `HTTP ${res.status}`;
         throw new ApiError(msg, res.status, data);
     }
