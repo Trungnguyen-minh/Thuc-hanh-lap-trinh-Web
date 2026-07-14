@@ -171,7 +171,9 @@ namespace Website.Controllers
 
         private string GetUserId() =>
             User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new UnauthorizedAccessException();
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+            ?? User.FindFirstValue("sub")
+            ?? throw new UnauthorizedAccessException(); 
 
         private string GetModelErrors() =>
             string.Join(", ", ModelState.Values

@@ -87,6 +87,8 @@ namespace Website.Controllers
 
         private string GetUserId() =>
             User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+            ?? User.FindFirstValue("sub")
             ?? throw new UnauthorizedAccessException();
 
         private string GetModelErrors() =>

@@ -370,3 +370,6 @@ wwwroot/uploads/*
 *secret*.json
 *credentials*.json
 appsettings.*.local.json
+appsettings.json
+appsettings.Development.json
+!appsettings.example.json
